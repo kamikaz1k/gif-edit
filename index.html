@@ -16,22 +16,55 @@
         console.log('oh hey, now the gif is loaded');
         rub.pause();
         rub.move_to(0);
+        resetFrames();
       });
+    }
+
+    function resetFrames() {
+      window.frames = new Array(rub.get_length());
     }
 
     function nextFrame() {
       rub.move_relative(1);
       document.querySelector("#frame-number").textContent = rub.get_current_frame();
+      decorateFrame();
     }
 
     function prevFrame() {
       rub.move_relative(-1);
       document.querySelector("#frame-number").textContent = rub.get_current_frame();
+      decorateFrame();
+    }
+
+    function decorateFrame() {
+      const text = getText();
+      addTextToCanvas(text, rub.get_canvas());
+    }
+
+    function getText() {
+      return document.querySelector("#text-for-gif").value;
     }
 
     function addText() {
-      const inputValue = document.querySelector("#text-for-gif").value;
+      const inputValue = getText();
       console.log(`addText: ${inputValue}`);
+      addTextToCanvas(inputValue, rub.get_canvas());
+    }
+
+    function addTextToCanvas(text, canvas) {
+      var ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "source-over"; // layer on top
+
+      ctx.font = "20px Georgia";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "black";
+      ctx.strokeText(text, canvas.width / 2, canvas.height - 10);
+
+      ctx.fillStyle = "white";
+      ctx.fillText(text, canvas.width / 2, canvas.height - 10);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
