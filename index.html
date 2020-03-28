@@ -6,7 +6,8 @@
   <title>Gif'r</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
-  <!-- <script src="gif.js"></script> -->
+  <script src="gif.js"></script>
+  <script src="gif.worker.js"></script>
   <script src="libgif.js"></script>
   <script type="text/javascript">
     function loadGif() {
@@ -27,6 +28,7 @@
       rub.move_to(0);
       window.frames = new Array(rub.get_length());
       updateFrameNumber();
+      decorateFrame();
     }
 
     function updateFrameNumber() {
@@ -88,8 +90,8 @@
     function drawNextFrame() {
       nextFrame();
 
-      if (!hasMoreFrames() || window.stopPreviewFlag) {
-        window.stopPreviewFlag = true;
+      if (window.stopPreviewFlag) {
+        window.stopPreviewFlag = false;
         return;
       }
 
@@ -100,8 +102,41 @@
     }
 
     function hasMoreFrames() {
-      return true;
       return rub.get_current_frame() < (rub.get_length() - 1);
+    }
+
+    function generateGif() {
+      const gif = new GIF({
+        workers: 2,
+        quality: 10
+      });
+      const allFrames = rub.frames();
+
+      stopPreview();
+      resetFrames();
+      let frames = 0;
+      do {
+        console.log(`frame count: ${frames}`);
+        const currentFrame = allFrames[rub.get_current_frame()];
+        const canvas = rub.get_canvas();
+        const ctx = canvas.getContext("2d");
+
+        gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height), { copy: true, delay: currentFrame.delay });
+        nextFrame();
+        frames++;
+      }
+      while (hasMoreFrames() && frames < 100);
+
+      gif.on('finished', function(blob) {
+        const url = URL.createObjectURL(blob);
+        console.log("gif ready:", url);
+        window.lastRender = blob;
+
+        document.querySelector("#output-gif").src = url;
+      });
+
+      console.log("rendering...");
+      gif.render();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -145,9 +180,10 @@
   <div class="container pt-2">
     <form class="form-inline">
       <div class="form-group mb-2">
-        <input id="text-for-gif" class="form-control" placeholder="text to put in the gif" />
+        <input id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" />
       </div>
       <button class="btn btn-light mb-1" type="button" id="add-text">Add Text</button>
+      <button class="btn btn-light mb-1" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </form>
   </div>
   <div class="container">
