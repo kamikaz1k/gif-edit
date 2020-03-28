@@ -795,6 +795,7 @@
                 },
                 step: step,
                 play: play,
+                frames: () => frames,
                 pause: pause,
                 playing: playing,
                 move_relative: stepFrame,
@@ -915,6 +916,8 @@
             pause: player.pause,
             move_relative: player.move_relative,
             move_to: player.move_to,
+
+            frames: player.frames,
 
             // getters for instance vars
             get_playing      : function() { return playing },
