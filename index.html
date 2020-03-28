@@ -144,8 +144,6 @@
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
-      // document.querySelector("#play-gif").addEventListener("click", () => window.rub && window.rub.play());
-      // document.querySelector("#pause-gif").addEventListener("click", () => window.rub && window.rub.pause());
       document.querySelector("#add-text").addEventListener("click", addText);
 
       document.querySelector("#preview-gif").addEventListener("click", preview);
@@ -174,7 +172,7 @@
       </div>
     </div>
   </div>
-  <div>
+  <div class="container p-0">
     <img src="" id="img-preview" />
   </div>
   <div class="container pt-2">
@@ -186,7 +184,7 @@
       <button class="btn btn-light mb-1" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </form>
   </div>
-  <div class="container">
+  <div class="container p-0">
     <div id="generated">
       <img id="output-gif" />
     </div>
