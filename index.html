@@ -29,6 +29,11 @@
       document.querySelector("#frame-number").textContent = rub.get_current_frame();
     }
 
+    function addText() {
+      const inputValue = document.querySelector("#text-for-gif").value;
+      console.log(`addText: ${inputValue}`);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
@@ -36,6 +41,9 @@
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
       document.querySelector("#play-gif").addEventListener("click", () => window.rub && window.rub.play());
       document.querySelector("#pause-gif").addEventListener("click", () => window.rub && window.rub.pause());
+      document.querySelector("#add-text").addEventListener("click", addText);
+
+      document.querySelector("#use-gif").click();
     })
   </script>
 </head>
@@ -50,7 +58,10 @@
     <button type="button" id="pause-gif">Pause</button>
     <span>Frame Number: <span id="frame-number"></span></span>
   </div>
-  <div style="padding: 15px;"></div>
+  <div style="padding: 15px;">
+    <input id="text-for-gif" placeholder="text to put in the gif" />
+    <button type="button" id="add-text">Add Text</button>
+  </div>
   <div>
     <img src="" id="img-preview" />
   </div>
