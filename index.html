@@ -18,12 +18,13 @@
       rub.load(function(){
         console.log('oh hey, now the gif is loaded');
         rub.pause();
-        rub.move_to(0);
         resetFrames();
+        preview();
       });
     }
 
     function resetFrames() {
+      rub.move_to(0);
       window.frames = new Array(rub.get_length());
       updateFrameNumber();
     }
@@ -99,6 +100,7 @@
     }
 
     function hasMoreFrames() {
+      return true;
       return rub.get_current_frame() < (rub.get_length() - 1);
     }
 
@@ -147,6 +149,11 @@
       </div>
       <button class="btn btn-light mb-1" type="button" id="add-text">Add Text</button>
     </form>
+  </div>
+  <div class="container">
+    <div id="generated">
+      <img id="output-gif" />
+    </div>
   </div>
   <!-- <div>
     <pre>
