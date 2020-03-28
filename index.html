@@ -34,6 +34,8 @@
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
+      document.querySelector("#play-gif").addEventListener("click", () => window.rub && window.rub.play());
+      document.querySelector("#pause-gif").addEventListener("click", () => window.rub && window.rub.pause());
     })
   </script>
 </head>
@@ -44,6 +46,8 @@
     <button type="button" id="use-gif">Load</button>
     <button type="button" id="prev-gif"><</button>
     <button type="button" id="next-gif">></button>
+    <button type="button" id="play-gif">Play</button>
+    <button type="button" id="pause-gif">Pause</button>
     <span>Frame Number: <span id="frame-number"></span></span>
   </div>
   <div style="padding: 15px;"></div>
