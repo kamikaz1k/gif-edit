@@ -50,6 +50,8 @@
     function decorateFrame() {
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
+
+      addOverlayToCanvas(getOverlayImg(), rub.get_canvas());
     }
 
     function getText() {
@@ -141,11 +143,15 @@
 
     function addOverlay() {
       const url = document.querySelector("#overlay-for-gif").value;
-      console.log("overload url:", url);
-      const img = document.querySelector("#overlay")
+      console.log("overlay url:", url);
+      const img = getOverlayImg();
       // const img = new Image();
       img.src = url;
       addOverlayToCanvas(img, rub.get_canvas());
+    }
+
+    function getOverlayImg() {
+      return document.querySelector("#overlay");
     }
 
     function addOverlayToCanvas(overlay, canvas) {
