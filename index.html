@@ -53,7 +53,7 @@
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
 
-      addOverlayToCanvas(getOverlayImg(), slider.getValue()[0], rub.get_canvas());
+      addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), { sizeRatio:  slider.getValue()[0] });
     }
 
     function getText() {
@@ -149,15 +149,18 @@
       const img = getOverlayImg();
       // const img = new Image();
       img.src = url;
-      addOverlayToCanvas(img, 1, rub.get_canvas());
+      img.crossOrigin = "Anonymous";
+      addOverlayToCanvas(img, rub.get_canvas(), {});
     }
 
     function getOverlayImg() {
       return document.querySelector("#overlay");
     }
 
-    function addOverlayToCanvas(overlay, sizeRatio, canvas) {
-      var ctx = canvas.getContext("2d");
+    function addOverlayToCanvas(overlay, canvas, options) {
+      options = options || {};
+      const sizeRatio = options.sizeRatio || 1;
+      const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
       ctx.drawImage(overlay, 0, 0, overlay.width * sizeRatio, overlay.height * sizeRatio);
