@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gif'r</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="dragdealer.css">
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
+  <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
   <script src="gif.worker.js"></script>
   <script src="libgif.js"></script>
@@ -51,7 +53,7 @@
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
 
-      addOverlayToCanvas(getOverlayImg(), rub.get_canvas());
+      addOverlayToCanvas(getOverlayImg(), slider.getValue()[0], rub.get_canvas());
     }
 
     function getText() {
@@ -147,22 +149,29 @@
       const img = getOverlayImg();
       // const img = new Image();
       img.src = url;
-      addOverlayToCanvas(img, rub.get_canvas());
+      addOverlayToCanvas(img, 1, rub.get_canvas());
     }
 
     function getOverlayImg() {
       return document.querySelector("#overlay");
     }
 
-    function addOverlayToCanvas(overlay, canvas) {
+    function addOverlayToCanvas(overlay, sizeRatio, canvas) {
       var ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
-      ctx.drawImage(overlay, 0, 0, overlay.width, overlay.height);
+      ctx.drawImage(overlay, 0, 0, overlay.width * sizeRatio, overlay.height * sizeRatio);
+    }
+
+    function getOverlaySize() {
+      document.querySelector("#overlay-size").value;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
+
+      window.slider = new Dragdealer('demo-simple-slider');
+
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
@@ -202,11 +211,21 @@
         <input id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" />
       </div>
     </form>
+
     <form class="form-inline">
       <div class="form-group mb-2">
         <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="https://avatars1.githubusercontent.com/u/11997716?s=460&u=99f82922435bc454caabb1ca6b904b68eb291eff&v=4" />
       </div>
       <button class="btn btn-light mb-2" type="button" id="add-gif-overlay" onclick="addOverlay()">Add Overlay</button>
+    </form>
+
+    <div class="mb-2">
+      <div id="demo-simple-slider" class="dragdealer">
+        <div class="handle red-bar">drag me</div>
+      </div>
+    </div>
+
+    <form class="form-inline">
       <button class="btn btn-danger mb-2" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </form>
   </div>
