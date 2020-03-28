@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Title Goes Here</title>
+  <!-- <script src="gif.js"></script> -->
+  <script src="libgif.js"></script>
+  <script type="text/javascript">
+    function loadGif() {
+      const inputValue = document.querySelector("#gif-url").value;
+      console.log("loading...", inputValue);
+
+      document.querySelector("#img-preview").src = inputValue;
+      window.rub = new SuperGif({ gif: document.querySelector("#img-preview") } );
+      rub.load(function(){
+        console.log('oh hey, now the gif is loaded');
+        rub.pause();
+        rub.move_to(0);
+      });
+    }
+
+    function nextFrame() {
+      rub.move_relative(1);
+      document.querySelector("#frame-number").textContent = rub.get_current_frame();
+    }
+
+    function prevFrame() {
+      rub.move_relative(-1);
+      document.querySelector("#frame-number").textContent = rub.get_current_frame();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("App Loaded");
+      document.querySelector("#use-gif").addEventListener("click", e => loadGif());
+      document.querySelector("#prev-gif").addEventListener("click", prevFrame);
+      document.querySelector("#next-gif").addEventListener("click", nextFrame);
+    })
+  </script>
+</head>
+<body>
+  <div>
+    <label for="gif-url">Gif URL please</label>
+    <input type="text" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" />
+    <button type="button" id="use-gif">Load</button>
+    <button type="button" id="prev-gif"><</button>
+    <button type="button" id="next-gif">></button>
+    <span>Frame Number: <span id="frame-number"></span></span>
+  </div>
+  <div style="padding: 15px;"></div>
+  <div>
+    <img src="" id="img-preview" />
+  </div>
+  <div>
+    <pre>
+      Instance methods
+      // loading
+      load( callback )    Loads the gif specified by the src or rel:animated_src sttributie of the img tag into a canvas element and then calls callback if one is passed
+      load_url( src, callback ) Loads the gif file specified in the src argument into a canvas element and then calls callback if one is passed
+      // play controls
+      play -        Start playing the gif
+      pause -       Stop playing the gif
+      move_to(i) -    Move to frame i of the gif
+      move_relative(i) -  Move i frames ahead (or behind if i < 0)
+      // getters
+      get_canvas      The canvas element that the gif is playing in. Handy for assigning event handlers to.
+      get_playing     Whether or not the gif is currently playing
+      get_loading     Whether or not the gif has finished loading/parsing
+      get_auto_play   Whether or not the gif is set to play automatically
+      get_length      The number of frames in the gif
+      get_current_frame The index of the currently displayed frame of the gif
+    </pre>
+  </div>
+</body>
+</html>
