@@ -16,17 +16,87 @@
         console.log('oh hey, now the gif is loaded');
         rub.pause();
         rub.move_to(0);
+        resetFrames();
       });
+    }
+
+    function resetFrames() {
+      window.frames = new Array(rub.get_length());
+      updateFrameNumber();
+    }
+
+    function updateFrameNumber() {
+      document.querySelector("#frame-number").textContent = rub.get_current_frame();
     }
 
     function nextFrame() {
       rub.move_relative(1);
-      document.querySelector("#frame-number").textContent = rub.get_current_frame();
+      updateFrameNumber();
+      decorateFrame();
     }
 
     function prevFrame() {
       rub.move_relative(-1);
-      document.querySelector("#frame-number").textContent = rub.get_current_frame();
+      updateFrameNumber();
+      decorateFrame();
+    }
+
+    function decorateFrame() {
+      const text = getText();
+      addTextToCanvas(text, rub.get_canvas());
+    }
+
+    function getText() {
+      return document.querySelector("#text-for-gif").value;
+    }
+
+    function addText() {
+      const inputValue = getText();
+      console.log(`addText: ${inputValue}`);
+      addTextToCanvas(inputValue, rub.get_canvas());
+    }
+
+    function addTextToCanvas(text, canvas) {
+      var ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "source-over"; // layer on top
+
+      ctx.font = "20px Georgia";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "black";
+      ctx.strokeText(text, canvas.width / 2, canvas.height - 10);
+
+      ctx.fillStyle = "white";
+      ctx.fillText(text, canvas.width / 2, canvas.height - 10);
+    }
+
+    function preview() {
+      window.stopPreviewFlag = false;
+      setTimeout(drawNextFrame);
+    }
+
+    function stopPreview() {
+      window.stopPreviewFlag = true;
+    }
+
+    function drawNextFrame() {
+      nextFrame();
+
+      if (!hasMoreFrames() || window.stopPreviewFlag) {
+        window.stopPreviewFlag = true;
+        return;
+      }
+
+      const allFrames = rub.frames();
+      const currentFrame = allFrames[rub.get_current_frame()];
+
+      setTimeout(drawNextFrame, currentFrame.delay * 10);
+    }
+
+    function hasMoreFrames() {
+      return rub.get_current_frame() < (rub.get_length() - 1);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -36,6 +106,12 @@
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
       document.querySelector("#play-gif").addEventListener("click", () => window.rub && window.rub.play());
       document.querySelector("#pause-gif").addEventListener("click", () => window.rub && window.rub.pause());
+      document.querySelector("#add-text").addEventListener("click", addText);
+
+      document.querySelector("#preview-gif").addEventListener("click", preview);
+      document.querySelector("#stop-preview-gif").addEventListener("click", stopPreview);
+
+      document.querySelector("#use-gif").click();
     })
   </script>
 </head>
@@ -48,9 +124,14 @@
     <button type="button" id="next-gif">></button>
     <button type="button" id="play-gif">Play</button>
     <button type="button" id="pause-gif">Pause</button>
-    <span>Frame Number: <span id="frame-number"></span></span>
+    <span>Frame #: <span id="frame-number"></span></span>
+    <button type="button" id="preview-gif">Preview</button>
+    <button type="button" id="stop-preview-gif">Stop Preview</button>
   </div>
-  <div style="padding: 15px;"></div>
+  <div style="padding: 15px;">
+    <input id="text-for-gif" placeholder="text to put in the gif" />
+    <button type="button" id="add-text">Add Text</button>
+  </div>
   <div>
     <img src="" id="img-preview" />
   </div>
