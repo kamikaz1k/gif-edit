@@ -53,7 +53,11 @@
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
 
-      addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), { sizeRatio:  slider.getValue()[0] });
+      addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), {
+        sizeRatio:  slider.getValue()[0],
+        top: overlayVertical.getValue()[0],
+        left: overlayHorizontal.getValue()[0]
+      });
     }
 
     function getText() {
@@ -167,7 +171,9 @@
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
-      ctx.drawImage(overlay, 0, 0, overlay.width * sizeRatio, overlay.height * sizeRatio);
+      const x = (options.left || 0) * canvas.width;
+      const y = (options.top || 0) * canvas.height;
+      ctx.drawImage(overlay, x, y, overlay.width * sizeRatio, overlay.height * sizeRatio);
     }
 
     function getOverlaySize() {
@@ -177,7 +183,9 @@
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
-      window.slider = new Dragdealer('demo-simple-slider');
+      window.slider = new Dragdealer('size-slider');
+      window.overlayVertical = new Dragdealer('vertical-slider');
+      window.overlayHorizontal = new Dragdealer('horizontal-slider');
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
@@ -227,8 +235,16 @@
     </form>
 
     <div class="mb-2">
-      <div id="demo-simple-slider" class="dragdealer">
-        <div class="handle red-bar">drag me</div>
+      <div id="size-slider" class="dragdealer">
+        <div class="handle red-bar">size</div>
+      </div>
+
+      <div id="vertical-slider" class="dragdealer">
+        <div class="handle red-bar">up/down</div>
+      </div>
+
+      <div id="horizontal-slider" class="dragdealer">
+        <div class="handle red-bar">left/right</div>
       </div>
     </div>
 
