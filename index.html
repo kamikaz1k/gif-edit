@@ -10,6 +10,9 @@
     .hidden {
       display: none;
     }
+    .handle {
+      user-select: none;
+    }
   </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="dragdealer.js"></script>
@@ -40,9 +43,9 @@
     }
 
     function initSliders() {
-      window.slider = new Dragdealer('size-slider', { x: 1, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
-      window.overlayVertical = new Dragdealer('vertical-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
-      window.overlayHorizontal = new Dragdealer('horizontal-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.slider = new Dragdealer('size-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayVertical = new Dragdealer('vertical-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayHorizontal = new Dragdealer('horizontal-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
     }
 
     function resetFrames() {
@@ -290,9 +293,20 @@
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
-      const x = (options.left || 0) * canvas.width;
-      const y = (options.top || 0) * canvas.height;
-      ctx.drawImage(overlay, x, y, overlay.width * sizeRatio, overlay.height * sizeRatio);
+
+      // Top Bottom Range should be: -overlay.height * sizeRatio to canvas.height
+      // Left Right Range should be: -overlay.width * sizeRatio to canvas.width
+      const vertOffset = overlay.height * sizeRatio;
+      const vertRange = canvas.height + vertOffset;
+
+      const horizontalOffset = overlay.width * sizeRatio;
+      const horizontalRange = canvas.width + horizontalOffset;
+
+
+      const x = (options.left || 0) * horizontalRange;
+      const y = (options.top || 0) * vertRange;
+
+      ctx.drawImage(overlay, x - horizontalOffset, y - vertOffset, overlay.width * sizeRatio, overlay.height * sizeRatio);
     }
 
     function getOverlaySize() {
