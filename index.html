@@ -5,7 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gif'r</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="dragdealer.css">
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
+  <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
   <script src="gif.worker.js"></script>
   <script src="libgif.js"></script>
@@ -24,9 +31,15 @@
       });
     }
 
+    function initSliders() {
+      window.slider = new Dragdealer('size-slider', { x: 1 });
+      window.overlayVertical = new Dragdealer('vertical-slider');
+      window.overlayHorizontal = new Dragdealer('horizontal-slider');
+    }
+
     function resetFrames() {
       rub.move_to(0);
-      window.frames = new Array(rub.get_length());
+      window.frames = new Array(rub.get_length()).map(_ => { return {}; });
       updateFrameNumber();
       decorateFrame();
     }
@@ -50,6 +63,12 @@
     function decorateFrame() {
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
+
+      window.slider && addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), {
+        sizeRatio:  window.slider.getValue()[0],
+        top: window.overlayVertical.getValue()[0],
+        left: window.overlayHorizontal.getValue()[0]
+      });
     }
 
     function getText() {
@@ -132,15 +151,57 @@
         console.log("gif ready:", url);
         window.lastRender = blob;
 
-        document.querySelector("#output-gif").src = url;
+        const renderedImg = document.querySelector("#output-gif");
+        renderedImg.src = url;
+        renderedImg.crossOrigin = "Anonymous";
+
+        makeVisible(document.querySelector(".render-section"));
+        setTimeout(() => renderedImg.scrollIntoView(), 500);
       });
 
       console.log("rendering...");
       gif.render();
     }
 
+    function makeVisible(element) {
+      element.classList.remove("hidden");
+    }
+
+    function addOverlay() {
+      const url = document.querySelector("#overlay-for-gif").value;
+      console.log("overlay url:", url);
+      const img = getOverlayImg();
+
+      img.src = url;
+      img.crossOrigin = "Anonymous";
+      addOverlayToCanvas(img, rub.get_canvas(), {});
+      makeVisible(document.querySelector(".overlay-controls"));
+
+      initSliders();
+    }
+
+    function getOverlayImg() {
+      return document.querySelector("#overlay");
+    }
+
+    function addOverlayToCanvas(overlay, canvas, options) {
+      options = options || {};
+      const sizeRatio = options.sizeRatio || 1;
+      const ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "source-over"; // layer on top
+
+      const x = (options.left || 0) * canvas.width;
+      const y = (options.top || 0) * canvas.height;
+      ctx.drawImage(overlay, x, y, overlay.width * sizeRatio, overlay.height * sizeRatio);
+    }
+
+    function getOverlaySize() {
+      document.querySelector("#overlay-size").value;
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
+
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
       document.querySelector("#next-gif").addEventListener("click", nextFrame);
@@ -175,17 +236,50 @@
     <img src="" id="img-preview" />
   </div>
   <div class="container pt-2">
+    <div class="input-group mb-2">
+      <input type="text" id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" aria-label="gif caption" aria-describedby="basic-caption">
+      <div class="input-group-append">
+        <span class="input-group-text" id="basic-caption">Caption</span>
+      </div>
+    </div>
+
     <form class="form-inline">
       <div class="form-group mb-2">
-        <input id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" />
+        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="https://avatars1.githubusercontent.com/u/11997716?s=460&u=99f82922435bc454caabb1ca6b904b68eb291eff&v=4" />
       </div>
-      <button class="btn btn-danger mb-2" type="button" id="render-gif" onclick="generateGif()">Render!</button>
+      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay" onclick="addOverlay()">Add Overlay</button>
+    </form>
+
+    <div class="mb-2 overlay-controls hidden">
+      <div id="size-slider" class="dragdealer">
+        <div class="handle red-bar">size</div>
+      </div>
+
+      <div id="vertical-slider" class="dragdealer">
+        <div class="handle red-bar">up/down</div>
+      </div>
+
+      <div id="horizontal-slider" class="dragdealer">
+        <div class="handle red-bar">left/right</div>
+      </div>
+    </div>
+
+    <form class="form-inline">
+      <button class="btn btn-danger mb-2 btn-block" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </form>
   </div>
+
   <div class="container p-0">
+    <img class="hidden" id="overlay" />
+  </div>
+
+  <div class="container p-0 render-section hidden">
+    <h1>Here's your gif hot off the press</h1>
     <div id="generated">
       <img id="output-gif" />
     </div>
+    <h1>Save the image directly, you can not hotlink it!</h1>
+    <h2>Remember to like follow subscribe</h2>
   </div>
   <!-- <div>
     <pre>
