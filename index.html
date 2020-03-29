@@ -247,10 +247,14 @@
       element.classList.remove("hidden");
     }
 
-    function addOverlay() {
+    function addOverlay(onLoadCallback) {
       const url = document.querySelector("#overlay-for-gif").value;
       console.log("overlay url:", url);
       const img = getOverlayImgElement();
+
+      if (onLoadCallback) {
+        img.onload = onLoadCallback;
+      }
 
       img.src = url;
       img.crossOrigin = "Anonymous";
@@ -287,6 +291,10 @@
       setTimeout(resetToFirstFrame, 500);
     }
 
+    function $(selector) {
+      return document.querySelector(selector);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
@@ -298,6 +306,8 @@
       document.querySelector("#stop-preview-gif").addEventListener("click", stopPreview);
 
       document.querySelector("#use-gif").click();
+
+      $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
 
       getCaptionElement().addEventListener("keydown", () => { console.log("keydown!"); setTimeout(refreshFrame) });
     })
@@ -342,7 +352,7 @@
       <div class="form-group mb-2">
         <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="https://avatars1.githubusercontent.com/u/11997716?s=460&u=99f82922435bc454caabb1ca6b904b68eb291eff&v=4" />
       </div>
-      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay" onclick="addOverlay()">Add Overlay</button>
+      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay">Add Overlay</button>
     </form>
 
     <div class="mb-2 overlay-controls hidden">
