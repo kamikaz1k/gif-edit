@@ -136,7 +136,11 @@
         console.log("gif ready:", url);
         window.lastRender = blob;
 
-        document.querySelector("#output-gif").src = url;
+        const renderedImg = document.querySelector("#output-gif");
+        renderedImg.src = url;
+        renderedImg.crossOrigin = "Anonymous";
+
+        setTimeout(() => renderedImg.scrollIntoView(), 1000);
       });
 
       console.log("rendering...");
@@ -236,6 +240,7 @@
     <img id="overlay" />
   </div>
   <div class="container p-0">
+    <h1>Here's your gif hot off the press</h1>
     <div id="generated">
       <img id="output-gif" />
     </div>
