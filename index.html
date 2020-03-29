@@ -286,7 +286,7 @@
 
     function addOverlayToCanvas(overlay, canvas, options) {
       options = options || {};
-      const sizeRatio = options.sizeRatio || 1;
+      const sizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
@@ -369,7 +369,7 @@
 
     <form class="form-inline">
       <div class="form-group mb-2">
-        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="https://avatars1.githubusercontent.com/u/11997716?s=460&u=99f82922435bc454caabb1ca6b904b68eb291eff&v=4" />
+        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="bli-face.png" />
       </div>
       <button class="btn btn-light mb-2" type="button" id="add-gif-overlay">Add Overlay</button>
     </form>
