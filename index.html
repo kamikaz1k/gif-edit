@@ -223,11 +223,12 @@
     <img src="" id="img-preview" />
   </div>
   <div class="container pt-2">
-    <form class="form-inline">
-      <div class="form-group mb-2">
-        <input id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" />
+    <div class="input-group mb-2">
+      <input type="text" id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" aria-label="gif caption" aria-describedby="basic-caption">
+      <div class="input-group-append">
+        <span class="input-group-text" id="basic-caption">Caption</span>
       </div>
-    </form>
+    </div>
 
     <form class="form-inline">
       <div class="form-group mb-2">
