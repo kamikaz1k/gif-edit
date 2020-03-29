@@ -289,7 +289,9 @@
 
     function addOverlayToCanvas(overlay, canvas, options) {
       options = options || {};
-      const sizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
+      const optionSizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
+      const sizeRatio = optionSizeRatio * 1.5; // Allow boosting size by 50%
+
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
