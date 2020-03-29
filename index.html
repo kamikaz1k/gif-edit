@@ -4,11 +4,11 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gif'r</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="bulma.min.css">
   <link rel="stylesheet" href="dragdealer.css">
   <style>
     .hidden {
-      display: none;
+      display: none !important;
     }
     .handle {
       user-select: none;
@@ -350,26 +350,30 @@
 </head>
 <body>
   <div class="container">
-    <form class="form-inline" id="load-controls">
-      <div class="form-group mb-2">
-        <input type="text" class="form-control" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
+    <div class="field has-addons" id="load-controls" style="display: flex;">
+      <div class="control is-expanded">
+        <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
       </div>
-      <button class="btn btn-light mb-2" type="button" id="use-gif">Load</button>
-    </form>
-
-    <div class="btn-toolbar pb-2 hidden" role="toolbar" aria-label="playback controls" id="playback-controls">
-      <div class="btn-group mr-2" role="group" aria-label="button group">
-        <button class="btn btn-secondary" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
-        <button class="btn btn-secondary" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
-        <button class="btn btn-secondary" type="button" id="preview-gif"><i class="fas fa-play"></i></button>
-        <button class="btn btn-secondary" type="button" id="stop-preview-gif"><i class="fas fa-pause"></i></button>
-        <span class="btn btn-secondary">Frame: <span id="frame-number">...</span></span>
+      <div class="control">
+        <button class="button is-info" type="button" id="use-gif">Load</button>
       </div>
     </div>
   </div>
+
   <div class="container p-0">
     <img crossorigin="Anonymous" id="img-preview" />
   </div>
+
+  <div class="container p-0">
+    <div class="buttons has-addons hidden" id="playback-controls">
+      <button class="button is-dark" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
+      <button class="button is-dark" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
+      <button class="button is-dark" type="button" id="preview-gif"><i class="fas fa-play"></i></button>
+      <button class="button is-dark" type="button" id="stop-preview-gif"><i class="fas fa-pause"></i></button>
+      <button class="button is-dark is-expanded" type="button">Frame: <span id="frame-number">...</span></button>
+    </div>
+  </div>
+
   <div class="container pt-2 hidden" id="edit-controls">
     <div>
       <button class="btn btn-warning mb-2 btn-block" type="button" id="frame-by-frame">Enable frame by frame mode*</button>
