@@ -18,6 +18,7 @@
   <script src="libgif.js"></script>
   <script type="text/javascript">
     function loadGif() {
+      if (window.rub) return;
       const inputValue = document.querySelector("#gif-url").value;
       console.log("loading...", inputValue);
 
@@ -27,31 +28,56 @@
         console.log('oh hey, now the gif is loaded');
         rub.pause();
         resetFrames();
-        preview();
+        startPreview();
+        makeInvisible($("#load-controls"));
+        enableEditControls();
       });
     }
 
+    function enableEditControls() {
+      makeVisible($("#edit-controls"));
+      makeVisible($("#playback-controls"));
+    }
+
     function initSliders() {
-      window.slider = new Dragdealer('size-slider', { x: 1 });
-      window.overlayVertical = new Dragdealer('vertical-slider');
-      window.overlayHorizontal = new Dragdealer('horizontal-slider');
+      window.slider = new Dragdealer('size-slider', { x: 1, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayVertical = new Dragdealer('vertical-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayHorizontal = new Dragdealer('horizontal-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
     }
 
     function resetFrames() {
       rub.move_to(0);
-      window.frames = new Array(rub.get_length()).map(_ => { return {}; });
+      window.frames = new Array(rub.get_length()).fill({});
       updateFrameNumber();
-      decorateFrame();
+      decorateFrame(window.frameByFrame);
+    }
+
+    function resetToFirstFrame() {
+      rub.move_to(0);
+      updateFrameNumber();
     }
 
     function updateFrameNumber() {
       document.querySelector("#frame-number").textContent = rub.get_current_frame();
     }
 
-    function nextFrame() {
+    function prevFrameSelected() {
+      window.frameByFrame && applyChangesForCurrentFrame();
+      prevFrame();
+    }
+    function nextFrameSelected() {
+      window.frameByFrame && applyChangesForCurrentFrame();
+      nextFrame();
+    }
+
+    function loadNextRenderFrame() {
+      nextFrame(window.frameByFrame);
+    }
+
+    function nextFrame(frameByFrame) {
       rub.move_relative(1);
       updateFrameNumber();
-      decorateFrame();
+      decorateFrame(frameByFrame);
     }
 
     function prevFrame() {
@@ -60,23 +86,86 @@
       decorateFrame();
     }
 
-    function decorateFrame() {
-      const text = getText();
-      addTextToCanvas(text, rub.get_canvas());
+    function decorateFrame(frameByFrame) {
+      if (!!frameByFrame) {
+        applyForFrame()
+      } else {
+        applyAllMode();
+      }
+    }
 
-      window.slider && addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), {
+    function refreshFrame() {
+      resetFrame();
+      decorateFrame();
+    }
+
+    function resetFrame() {
+      rub.move_to(rub.get_current_frame());
+    }
+
+    function applyChangesForCurrentFrame() {
+      const frameIdx = rub.get_current_frame();
+      const frameDecorationOptions = {};
+
+      const text = getCaption();
+      if (text) {
+        frameDecorationOptions.caption = { text: text };
+      }
+
+      const imgElement = getOverlayImgElement();
+      if (!!imgElement.src) {
+        frameDecorationOptions.overlay = {
+          sizeRatio:  window.slider.getValue()[0],
+          top: window.overlayVertical.getValue()[0],
+          left: window.overlayHorizontal.getValue()[0]
+        }
+      }
+
+      console.log(`overriding frame#${frameIdx} | current: ${JSON.stringify(window.frames[frameIdx])} | new: ${JSON.stringify(frameDecorationOptions)}`);
+      window.frames[frameIdx] = frameDecorationOptions;
+    }
+
+    function applyForFrame() {
+      const frameIdx = rub.get_current_frame();
+      const frameDecorationOptions = window.frames[frameIdx];
+
+      if (frameDecorationOptions.overlay && window.slider) {
+        addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
+          sizeRatio:  frameDecorationOptions.overlay.sizeRatio,
+          top: frameDecorationOptions.overlay.top,
+          left: frameDecorationOptions.overlay.left
+        });
+      }
+
+      if (frameDecorationOptions.caption) {
+        const text = frameDecorationOptions.caption.text;
+        addTextToCanvas(text, rub.get_canvas());
+      }
+    }
+
+    function applyAllMode() {
+      window.overlayVertical &&
+      window.overlayHorizontal &&
+      window.slider &&
+      addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
         left: window.overlayHorizontal.getValue()[0]
       });
+
+      addTextToCanvas(getCaption(), rub.get_canvas());
     }
 
-    function getText() {
-      return document.querySelector("#text-for-gif").value;
+    function getCaption() {
+      return getCaptionElement().value;
+    }
+
+    function getCaptionElement() {
+      return document.querySelector("#text-for-gif");
     }
 
     function addText() {
-      const inputValue = getText();
+      const inputValue = getCaption();
       console.log(`addText: ${inputValue}`);
       addTextToCanvas(inputValue, rub.get_canvas());
     }
@@ -97,20 +186,23 @@
       ctx.fillText(text, canvas.width / 2, canvas.height - 10);
     }
 
-    function preview() {
-      window.stopPreviewFlag = false;
+    function startPreview() {
+      window.previewIsRunning = true;
       setTimeout(drawNextFrame);
     }
 
+    function isPreviewRunning() {
+      return window.previewIsRunning;
+    }
+
     function stopPreview() {
-      window.stopPreviewFlag = true;
+      window.previewIsRunning = false;
     }
 
     function drawNextFrame() {
-      nextFrame();
+      nextFrame(window.frameByFrame);
 
-      if (window.stopPreviewFlag) {
-        window.stopPreviewFlag = false;
+      if (!window.previewIsRunning) {
         return;
       }
 
@@ -132,7 +224,7 @@
       const allFrames = rub.frames();
 
       stopPreview();
-      resetFrames();
+      resetToFirstFrame();
       let frames = 0;
       do {
         console.log(`frame count: ${frames}`);
@@ -141,7 +233,7 @@
         const ctx = canvas.getContext("2d");
 
         gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height), { copy: true, delay: currentFrame.delay });
-        nextFrame();
+        loadNextRenderFrame();
         frames++;
       }
       while (hasMoreFrames() && frames < 100);
@@ -167,10 +259,18 @@
       element.classList.remove("hidden");
     }
 
-    function addOverlay() {
+    function makeInvisible(element) {
+      element.classList.add("hidden");
+    }
+
+    function addOverlay(onLoadCallback) {
       const url = document.querySelector("#overlay-for-gif").value;
       console.log("overlay url:", url);
-      const img = getOverlayImg();
+      const img = getOverlayImgElement();
+
+      if (onLoadCallback) {
+        img.onload = onLoadCallback;
+      }
 
       img.src = url;
       img.crossOrigin = "Anonymous";
@@ -180,13 +280,13 @@
       initSliders();
     }
 
-    function getOverlayImg() {
+    function getOverlayImgElement() {
       return document.querySelector("#overlay");
     }
 
     function addOverlayToCanvas(overlay, canvas, options) {
       options = options || {};
-      const sizeRatio = options.sizeRatio || 1;
+      const sizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
@@ -199,30 +299,49 @@
       document.querySelector("#overlay-size").value;
     }
 
+    function enableFrameByFrame() {
+      stopPreview();
+      window.frameByFrame = true;
+      console.log(`frameByFrame status: ${frameByFrame}`);
+      resetFrames();
+      setTimeout(() => { resetToFirstFrame(); refreshFrame(); }, 500);
+    }
+
+    function $(selector) {
+      return document.querySelector(selector);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
-      document.querySelector("#prev-gif").addEventListener("click", prevFrame);
-      document.querySelector("#next-gif").addEventListener("click", nextFrame);
+      document.querySelector("#prev-gif").addEventListener("click", prevFrameSelected);
+      document.querySelector("#next-gif").addEventListener("click", nextFrameSelected);
 
-      document.querySelector("#preview-gif").addEventListener("click", preview);
+      document.querySelector("#preview-gif").addEventListener("click", startPreview);
       document.querySelector("#stop-preview-gif").addEventListener("click", stopPreview);
 
+      $("#frame-by-frame").addEventListener("click", enableFrameByFrame);
+
+      // TODO: REMOVE
       document.querySelector("#use-gif").click();
+
+      $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
+
+      getCaptionElement().addEventListener("keydown", () => { console.log("keydown!"); setTimeout(refreshFrame) });
     })
   </script>
 </head>
 <body>
   <div class="container">
-    <form class="form-inline">
+    <form class="form-inline" id="load-controls">
       <div class="form-group mb-2">
         <input type="text" class="form-control" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
       </div>
       <button class="btn btn-light mb-2" type="button" id="use-gif">Load</button>
     </form>
 
-    <div class="btn-toolbar pb-2" role="toolbar" aria-label="playback controls">
+    <div class="btn-toolbar pb-2 hidden" role="toolbar" aria-label="playback controls" id="playback-controls">
       <div class="btn-group mr-2" role="group" aria-label="button group">
         <button class="btn btn-secondary" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
         <button class="btn btn-secondary" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
@@ -233,9 +352,14 @@
     </div>
   </div>
   <div class="container p-0">
-    <img src="" id="img-preview" />
+    <img crossorigin="Anonymous" id="img-preview" />
   </div>
-  <div class="container pt-2">
+  <div class="container pt-2 hidden" id="edit-controls">
+    <div>
+      <button class="btn btn-warning mb-2 btn-block" type="button" id="frame-by-frame">Enable frame by frame mode*</button>
+      <p class="text-center">*allows you to edit each frame individually</p>
+    </div>
+
     <div class="input-group mb-2">
       <input type="text" id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" aria-label="gif caption" aria-describedby="basic-caption">
       <div class="input-group-append">
@@ -245,9 +369,9 @@
 
     <form class="form-inline">
       <div class="form-group mb-2">
-        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="https://avatars1.githubusercontent.com/u/11997716?s=460&u=99f82922435bc454caabb1ca6b904b68eb291eff&v=4" />
+        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="bli-face.png" />
       </div>
-      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay" onclick="addOverlay()">Add Overlay</button>
+      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay">Add Overlay</button>
     </form>
 
     <div class="mb-2 overlay-controls hidden">
@@ -270,36 +394,16 @@
   </div>
 
   <div class="container p-0">
-    <img class="hidden" id="overlay" />
+    <img crossorigin="Anonymous" class="hidden" id="overlay" />
   </div>
 
   <div class="container p-0 render-section hidden">
     <h1>Here's your gif hot off the press</h1>
     <div id="generated">
-      <img id="output-gif" />
+      <img crossorigin="Anonymous" id="output-gif" />
     </div>
     <h1>Save the image directly, you can not hotlink it!</h1>
     <h2>Remember to like follow subscribe</h2>
   </div>
-  <!-- <div>
-    <pre>
-      Instance methods
-      // loading
-      load( callback )    Loads the gif specified by the src or rel:animated_src sttributie of the img tag into a canvas element and then calls callback if one is passed
-      load_url( src, callback ) Loads the gif file specified in the src argument into a canvas element and then calls callback if one is passed
-      // play controls
-      play -        Start playing the gif
-      pause -       Stop playing the gif
-      move_to(i) -    Move to frame i of the gif
-      move_relative(i) -  Move i frames ahead (or behind if i < 0)
-      // getters
-      get_canvas      The canvas element that the gif is playing in. Handy for assigning event handlers to.
-      get_playing     Whether or not the gif is currently playing
-      get_loading     Whether or not the gif has finished loading/parsing
-      get_auto_play   Whether or not the gif is set to play automatically
-      get_length      The number of frames in the gif
-      get_current_frame The index of the currently displayed frame of the gif
-    </pre>
-  </div> -->
 </body>
 </html>
