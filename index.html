@@ -13,6 +13,9 @@
     .handle {
       user-select: none;
     }
+    .p-0 { padding: 0px; }
+    .pt-2 { padding-top: 1rem; }
+    .pb-2 { padding-bottom: 1rem; }
   </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="dragdealer.js"></script>
@@ -350,7 +353,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="field has-addons" id="load-controls" style="display: flex;">
+    <div class="field has-addons" id="load-controls">
       <div class="control is-expanded">
         <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
       </div>
@@ -366,35 +369,35 @@
 
   <div class="container p-0">
     <div class="buttons has-addons hidden" id="playback-controls">
+      <button class="button is-dark is-expanded" type="button">Frame:&nbsp;<span id="frame-number">...</span></button>
       <button class="button is-dark" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
       <button class="button is-dark" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
       <button class="button is-dark" type="button" id="preview-gif"><i class="fas fa-play"></i></button>
       <button class="button is-dark" type="button" id="stop-preview-gif"><i class="fas fa-pause"></i></button>
-      <button class="button is-dark is-expanded" type="button">Frame: <span id="frame-number">...</span></button>
     </div>
   </div>
 
   <div class="container pt-2 hidden" id="edit-controls">
-    <div>
-      <button class="btn btn-warning mb-2 btn-block" type="button" id="frame-by-frame">Enable frame by frame mode*</button>
-      <p class="text-center">*allows you to edit each frame individually</p>
+    <div class="field">
+      <button class="button is-warning is-fullwidth" type="button" id="frame-by-frame">Enable frame by frame mode</button>
     </div>
 
-    <div class="input-group mb-2">
-      <input type="text" id="text-for-gif" class="form-control" placeholder="text to put in the gif" value="SMAAAAAASH!" aria-label="gif caption" aria-describedby="basic-caption">
-      <div class="input-group-append">
-        <span class="input-group-text" id="basic-caption">Caption</span>
+    <div class="field has-addons">
+      <p class="control is-expanded">
+        <input class="input" type="text" placeholder="text to put in the gif" value="SMAAAAAASH!" id="text-for-gif">
+      </p>
+    </div>
+
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input id="overlay-for-gif" class="input is-expanded" placeholder="https://overlay.com" value="bli-face.png" />
+      </div>
+      <div class="control">
+        <button class="button is-info" type="button" id="add-gif-overlay">Add Overlay</button>
       </div>
     </div>
 
-    <form class="form-inline">
-      <div class="form-group mb-2">
-        <input id="overlay-for-gif" class="form-control" placeholder="https://overlay.com" value="bli-face.png" />
-      </div>
-      <button class="btn btn-light mb-2" type="button" id="add-gif-overlay">Add Overlay</button>
-    </form>
-
-    <div class="mb-2 overlay-controls hidden">
+    <div class="pb-2 overlay-controls hidden">
       <div id="size-slider" class="dragdealer">
         <div class="handle red-bar">size</div>
       </div>
@@ -408,9 +411,9 @@
       </div>
     </div>
 
-    <form class="form-inline">
-      <button class="btn btn-danger mb-2 btn-block" type="button" id="render-gif" onclick="generateGif()">Render!</button>
-    </form>
+    <div>
+      <button class="button is-success is-fullwidth" type="button" id="render-gif" onclick="generateGif()">Render!</button>
+    </div>
   </div>
 
   <div class="container p-0">
