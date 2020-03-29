@@ -28,14 +28,14 @@
         console.log('oh hey, now the gif is loaded');
         rub.pause();
         resetFrames();
-        preview();
+        startPreview();
       });
     }
 
     function initSliders() {
-      window.slider = new Dragdealer('size-slider', { x: 1 });
-      window.overlayVertical = new Dragdealer('vertical-slider');
-      window.overlayHorizontal = new Dragdealer('horizontal-slider');
+      window.slider = new Dragdealer('size-slider', { x: 1, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayVertical = new Dragdealer('vertical-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayHorizontal = new Dragdealer('horizontal-slider', { animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
     }
 
     function resetFrames() {
@@ -137,7 +137,10 @@
     }
 
     function applyAllMode() {
-      window.slider && addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
+      window.overlayVertical &&
+      window.overlayHorizontal &&
+      window.slider &&
+      addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
         left: window.overlayHorizontal.getValue()[0]
@@ -176,20 +179,23 @@
       ctx.fillText(text, canvas.width / 2, canvas.height - 10);
     }
 
-    function preview() {
-      window.stopPreviewFlag = false;
+    function startPreview() {
+      window.previewIsRunning = true;
       setTimeout(drawNextFrame);
     }
 
+    function isPreviewRunning() {
+      return window.previewIsRunning;
+    }
+
     function stopPreview() {
-      window.stopPreviewFlag = true;
+      window.previewIsRunning = false;
     }
 
     function drawNextFrame() {
       nextFrame(window.frameByFrame);
 
-      if (window.stopPreviewFlag) {
-        window.stopPreviewFlag = false;
+      if (!window.previewIsRunning) {
         return;
       }
 
@@ -301,7 +307,7 @@
       document.querySelector("#prev-gif").addEventListener("click", prevFrameSelected);
       document.querySelector("#next-gif").addEventListener("click", nextFrameSelected);
 
-      document.querySelector("#preview-gif").addEventListener("click", preview);
+      document.querySelector("#preview-gif").addEventListener("click", startPreview);
       document.querySelector("#stop-preview-gif").addEventListener("click", stopPreview);
 
       document.querySelector("#use-gif").click();
