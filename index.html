@@ -122,11 +122,6 @@
       const frameIdx = rub.get_current_frame();
       const frameDecorationOptions = window.frames[frameIdx];
 
-      if (frameDecorationOptions.caption) {
-        const text = frameDecorationOptions.caption.text;
-        addTextToCanvas(text, rub.get_canvas());
-      }
-
       if (frameDecorationOptions.overlay && window.slider) {
         addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
           sizeRatio:  frameDecorationOptions.overlay.sizeRatio,
@@ -134,17 +129,21 @@
           left: frameDecorationOptions.overlay.left
         });
       }
+
+      if (frameDecorationOptions.caption) {
+        const text = frameDecorationOptions.caption.text;
+        addTextToCanvas(text, rub.get_canvas());
+      }
     }
 
     function applyAllMode() {
-      const text = getCaption();
-      addTextToCanvas(text, rub.get_canvas());
-
       window.slider && addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
         left: window.overlayHorizontal.getValue()[0]
       });
+
+      addTextToCanvas(getCaption(), rub.get_canvas());
     }
 
     function getCaption() {
@@ -288,7 +287,7 @@
       window.frameByFrame = true;
       console.log(`frameByFrame status: ${frameByFrame}`);
       resetFrames();
-      setTimeout(resetToFirstFrame, 500);
+      setTimeout(() => { resetToFirstFrame(); refreshFrame(); }, 500);
     }
 
     function $(selector) {
