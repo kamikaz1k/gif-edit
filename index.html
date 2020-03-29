@@ -6,6 +6,11 @@
   <title>Gif'r</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="dragdealer.css">
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
@@ -24,6 +29,12 @@
         resetFrames();
         preview();
       });
+    }
+
+    function initSliders() {
+      window.slider = new Dragdealer('size-slider', { x: 1 });
+      window.overlayVertical = new Dragdealer('vertical-slider');
+      window.overlayHorizontal = new Dragdealer('horizontal-slider');
     }
 
     function resetFrames() {
@@ -53,10 +64,10 @@
       const text = getText();
       addTextToCanvas(text, rub.get_canvas());
 
-      addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), {
-        sizeRatio:  slider.getValue()[0],
-        top: overlayVertical.getValue()[0],
-        left: overlayHorizontal.getValue()[0]
+      window.slider && addOverlayToCanvas(getOverlayImg(), rub.get_canvas(), {
+        sizeRatio:  window.slider.getValue()[0],
+        top: window.overlayVertical.getValue()[0],
+        left: window.overlayHorizontal.getValue()[0]
       });
     }
 
@@ -144,11 +155,16 @@
         renderedImg.src = url;
         renderedImg.crossOrigin = "Anonymous";
 
-        setTimeout(() => renderedImg.scrollIntoView(), 1000);
+        makeVisible(document.querySelector(".render-section"));
+        setTimeout(() => renderedImg.scrollIntoView(), 500);
       });
 
       console.log("rendering...");
       gif.render();
+    }
+
+    function makeVisible(element) {
+      element.classList.remove("hidden");
     }
 
     function addOverlay() {
@@ -159,8 +175,9 @@
       img.src = url;
       img.crossOrigin = "Anonymous";
       addOverlayToCanvas(img, rub.get_canvas(), {});
-      document.querySelector(".overlay-controls").style.visibility = null;
-      img.style.visibility = "hidden";
+      makeVisible(document.querySelector(".overlay-controls"));
+
+      initSliders();
     }
 
     function getOverlayImg() {
@@ -184,10 +201,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
-
-      window.slider = new Dragdealer('size-slider', { x: 1 });
-      window.overlayVertical = new Dragdealer('vertical-slider');
-      window.overlayHorizontal = new Dragdealer('horizontal-slider');
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
       document.querySelector("#prev-gif").addEventListener("click", prevFrame);
@@ -237,7 +250,7 @@
       <button class="btn btn-light mb-2" type="button" id="add-gif-overlay" onclick="addOverlay()">Add Overlay</button>
     </form>
 
-    <div class="mb-2 overlay-controls" style="visibility: hidden;">
+    <div class="mb-2 overlay-controls hidden">
       <div id="size-slider" class="dragdealer">
         <div class="handle red-bar">size</div>
       </div>
@@ -255,14 +268,18 @@
       <button class="btn btn-danger mb-2 btn-block" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </form>
   </div>
+
   <div class="container p-0">
-    <img id="overlay" />
+    <img class="hidden" id="overlay" />
   </div>
-  <div class="container p-0">
+
+  <div class="container p-0 render-section hidden">
     <h1>Here's your gif hot off the press</h1>
     <div id="generated">
       <img id="output-gif" />
     </div>
+    <h1>Save the image directly, you can not hotlink it!</h1>
+    <h2>Remember to like follow subscribe</h2>
   </div>
   <!-- <div>
     <pre>
