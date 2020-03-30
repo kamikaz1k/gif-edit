@@ -6,6 +6,7 @@
   <title>Gif'r</title>
   <link rel="stylesheet" href="bulma.min.css">
   <link rel="stylesheet" href="dragdealer.css">
+  <link rel="stylesheet" type="text/css" href="glide.core.min.css">
   <style>
     .hidden {
       display: none !important;
@@ -18,6 +19,7 @@
     .pb-2 { padding-bottom: 1rem; }
     .text-center { text-align: center; }
   </style>
+  <script src="glide.min.js"></script>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
@@ -69,11 +71,18 @@
     }
 
     function prevFrameSelected() {
-      window.frameByFrame && applyChangesForCurrentFrame();
+      if (window.frameByFrame) {
+        applyChangesForCurrentFrame();
+        refreshPreviewForFrame(rub.get_current_frame());
+      }
       prevFrame();
     }
+
     function nextFrameSelected() {
-      window.frameByFrame && applyChangesForCurrentFrame();
+      if (window.frameByFrame) {
+        applyChangesForCurrentFrame();
+        refreshPreviewForFrame(rub.get_current_frame());
+      }
       nextFrame();
     }
 
@@ -133,11 +142,16 @@
     }
 
     function applyForFrame() {
+      const canvas = rub.get_canvas();
       const frameIdx = rub.get_current_frame();
+      applyFrameDecorationsToCanvas(frameIdx, canvas);
+    }
+
+    function applyFrameDecorationsToCanvas(frameIdx, canvas) {
       const frameDecorationOptions = window.frames[frameIdx];
 
       if (frameDecorationOptions.overlay && window.slider) {
-        addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
+        addOverlayToCanvas(getOverlayImgElement(), canvas, {
           sizeRatio:  frameDecorationOptions.overlay.sizeRatio,
           top: frameDecorationOptions.overlay.top,
           left: frameDecorationOptions.overlay.left
@@ -146,7 +160,7 @@
 
       if (frameDecorationOptions.caption) {
         const text = frameDecorationOptions.caption.text;
-        addTextToCanvas(text, rub.get_canvas());
+        addTextToCanvas(text, canvas);
       }
     }
 
@@ -325,8 +339,61 @@
       console.log(`frameByFrame status: ${frameByFrame}`);
       resetFrames();
       setTimeout(() => { resetToFirstFrame(); refreshFrame(); }, 500);
+
       makeVisible($("#frame-mode-header"));
       makeInvisible($("#frame-by-frame"));
+
+      makeVisible($("#preview-container"));
+      addPreviews();
+    }
+
+    function togglePreview() {
+      toggleVisibility("#preview");
+    }
+
+    function toggleVisibility(selector) {
+      const element = $(selector);
+      element.classList.contains("hidden") ? makeVisible(element) : makeInvisible(element);
+    }
+
+    function addPreviews() {
+      const preview = $("#carousel-container");
+      const canvas = rub.get_canvas();
+      preview.innerHTML = window.frames.map(_ =>
+        `<li class="glide__slide">` +
+        `<canvas class="preview-frame" width="${canvas.width}" height="${canvas.height}"></canvas>` +
+        `</li>`
+      ).join("");
+
+      refreshPreviews();
+      initGlide();
+    }
+
+    function initGlide() {
+      new Glide(".glide").mount();
+    }
+
+    function refreshPreviews() {
+      Array.prototype.forEach.call(document.querySelectorAll(".preview-frame"), (el, idx) => {
+        refreshPreviewForFrame(idx, el);
+      });
+    }
+
+    function refreshPreviewForFrame(frameIdx, canvas) {
+      canvas =  canvas || document.querySelectorAll(".preview-frame")[frameIdx];
+      addOriginalFrametoCanvas(getImageDataForFrameIdx(frameIdx), canvas)
+      applyFrameDecorationsToCanvas(frameIdx, canvas)
+    }
+
+    function getImageDataForFrameIdx(frameIdx) {
+      return rub.frames()[frameIdx].data;
+    }
+
+    function addOriginalFrametoCanvas(imageData, canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "source-over";
+
+      ctx.putImageData(imageData, 0, 0);
     }
 
     function $(selector) {
@@ -417,6 +484,18 @@
       </div>
     </div>
 
+    <div id="preview-container" class="hidden pb-2">
+      <button class="button is-info is-fullwidth" onclick="togglePreview()">Toggle Preview Frames</button>
+      <div id="preview">
+        <div class="glide">
+          <div class="glide__track" data-glide-el="track">
+            <ul class="glide__slides" id="carousel-container">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div>
       <button class="button is-success is-fullwidth" type="button" id="render-gif" onclick="generateGif()">Render!</button>
     </div>
@@ -427,12 +506,27 @@
   </div>
 
   <div class="container p-0 render-section hidden">
-    <h1>Here's your gif hot off the press</h1>
+    <h1 class="title">Here's your gif hot off the press</h1>
     <div id="generated">
       <img crossorigin="Anonymous" id="output-gif" />
     </div>
-    <h1>Save the image directly, you can not hotlink it!</h1>
-    <h2>Remember to like follow subscribe</h2>
+    <h1 class="title">Save the image directly, you can not hotlink it!</h1>
+    <h2 class="subtitle">Remember to like follow subscribe</h2>
   </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content" style="margin-top: 150px">
+        <p onclick="toggleVisibility('#licenses')">Licenses / Thank You&nbsp;<i class="fas fa-chevron-down"></i></p>
+        <ul id="licenses" class="hidden buttons">
+          <button class="button is-rounded"><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/jnordberg/gif.js">gif.js - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/skidding/dragdealer">dragdealer - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/glidejs/glide">glide.js - MIT</a></button>
+          <button class="button is-rounded"><a href="https://bulma.io">BulmaCSS - MIT</a></button>
+        </ul>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
