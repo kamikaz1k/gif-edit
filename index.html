@@ -531,15 +531,19 @@
     <h2 class="subtitle">Remember to like follow subscribe</h2>
   </div>
 
-  <div class="content" style="margin-top: 150px">
-    <h1 onclick="toggleVisibility('#licenses')">Licenses / Thank You</h1>
-    <ul id="licenses" class="hidden">
-      <li><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></li>
-      <li><a href="https://github.com/jnordberg/gif.js">gif.js - MIT</a></li>
-      <li><a href="https://github.com/skidding/dragdealer">dragdealer - MIT</a></li>
-      <li><a href="https://github.com/glidejs/glide">glide.js - MIT</a></li>
-      <li><a href="https://bulma.io">BulmaCSS - MIT</a></li>
-    </ul>
-  </div>
+  <footer class="footer">
+    <div class="container">
+      <div class="content" style="margin-top: 150px">
+        <p onclick="toggleVisibility('#licenses')">Licenses / Thank You&nbsp;<i class="fas fa-chevron-down"></i></p>
+        <ul id="licenses" class="hidden buttons">
+          <button class="button is-rounded"><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/jnordberg/gif.js">gif.js - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/skidding/dragdealer">dragdealer - MIT</a></button>
+          <button class="button is-rounded"><a href="https://github.com/glidejs/glide">glide.js - MIT</a></button>
+          <button class="button is-rounded"><a href="https://bulma.io">BulmaCSS - MIT</a></button>
+        </ul>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
