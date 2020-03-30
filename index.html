@@ -20,7 +20,7 @@
     .text-center { text-align: center; }
   </style>
   <script src="glide.min.js"></script>
-  <!-- <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script> -->
+  <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
   <script src="gif.worker.js"></script>
@@ -362,8 +362,12 @@
     }
 
     function togglePreview() {
-      const preview = $("#preview");
-      preview.classList.contains("hidden") ? makeVisible(preview) : makeInvisible(preview);
+      toggleVisibility("#preview");
+    }
+
+    function toggleVisibility(selector) {
+      const element = $(selector);
+      element.classList.contains("hidden") ? makeVisible(element) : makeInvisible(element);
     }
 
     function addPreviews() {
@@ -435,7 +439,7 @@
   <div class="container">
     <div class="field has-addons" id="load-controls">
       <div class="control is-expanded">
-        <input type="text" class="input" id="gif-url" name="gif-url" value="brian-demo-1.gif?q=https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
+        <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
       </div>
       <div class="control">
         <button class="button is-info" type="button" id="use-gif">Load</button>
@@ -453,10 +457,10 @@
   <div class="container p-0">
     <div class="buttons has-addons hidden" id="playback-controls">
       <button class="button is-dark is-expanded" type="button">Frame:&nbsp;<span id="frame-number">...</span></button>
-      <button class="button is-dark" type="button" id="prev-gif">P<i class="fas fa-chevron-double-left"></i></button>
-      <button class="button is-dark" type="button" id="next-gif">N<i class="fas fa-chevron-double-right"></i></button>
-      <button class="button is-dark" type="button" id="preview-gif">><i class="fas fa-play"></i></button>
-      <button class="button is-dark" type="button" id="stop-preview-gif">|<i class="fas fa-pause"></i></button>
+      <button class="button is-dark" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
+      <button class="button is-dark" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
+      <button class="button is-dark" type="button" id="preview-gif"><i class="fas fa-play"></i></button>
+      <button class="button is-dark" type="button" id="stop-preview-gif"><i class="fas fa-pause"></i></button>
     </div>
   </div>
 
@@ -519,12 +523,23 @@
   </div>
 
   <div class="container p-0 render-section hidden">
-    <h1>Here's your gif hot off the press</h1>
+    <h1 class="title">Here's your gif hot off the press</h1>
     <div id="generated">
       <img crossorigin="Anonymous" id="output-gif" />
     </div>
-    <h1>Save the image directly, you can not hotlink it!</h1>
-    <h2>Remember to like follow subscribe</h2>
+    <h1 class="title">Save the image directly, you can not hotlink it!</h1>
+    <h2 class="subtitle">Remember to like follow subscribe</h2>
+  </div>
+
+  <div class="content" style="margin-top: 150px">
+    <h1 onclick="toggleVisibility('#licenses')">Licenses / Thank You</h1>
+    <ul id="licenses" class="hidden">
+      <li><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></li>
+      <li><a href="https://github.com/jnordberg/gif.js">gif.js - MIT</a></li>
+      <li><a href="https://github.com/skidding/dragdealer">dragdealer - MIT</a></li>
+      <li><a href="https://github.com/glidejs/glide">glide.js - MIT</a></li>
+      <li><a href="https://bulma.io">BulmaCSS - MIT</a></li>
+    </ul>
   </div>
 </body>
 </html>
