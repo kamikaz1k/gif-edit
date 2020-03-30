@@ -145,20 +145,6 @@
       const canvas = rub.get_canvas();
       const frameIdx = rub.get_current_frame();
       applyFrameDecorationsToCanvas(frameIdx, canvas);
-      // const frameDecorationOptions = window.frames[frameIdx];
-
-      // if (frameDecorationOptions.overlay && window.slider) {
-      //   addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
-      //     sizeRatio:  frameDecorationOptions.overlay.sizeRatio,
-      //     top: frameDecorationOptions.overlay.top,
-      //     left: frameDecorationOptions.overlay.left
-      //   });
-      // }
-
-      // if (frameDecorationOptions.caption) {
-      //   const text = frameDecorationOptions.caption.text;
-      //   addTextToCanvas(text, rub.get_canvas());
-      // }
     }
 
     function applyFrameDecorationsToCanvas(frameIdx, canvas) {
@@ -504,9 +490,6 @@
         <div class="glide">
           <div class="glide__track" data-glide-el="track">
             <ul class="glide__slides" id="carousel-container">
-              <!-- <li class="glide__slide">0</li>
-              <li class="glide__slide">1</li>
-              <li class="glide__slide">2</li> -->
             </ul>
           </div>
         </div>
