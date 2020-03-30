@@ -20,7 +20,7 @@
     .text-center { text-align: center; }
   </style>
   <script src="glide.min.js"></script>
-  <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
+  <!-- <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script> -->
   <script src="dragdealer.js"></script>
   <script src="gif.js"></script>
   <script src="gif.worker.js"></script>
@@ -71,11 +71,18 @@
     }
 
     function prevFrameSelected() {
-      window.frameByFrame && applyChangesForCurrentFrame();
+      if (window.frameByFrame) {
+        applyChangesForCurrentFrame();
+        refreshPreviewForFrame(rub.get_current_frame());
+      }
       prevFrame();
     }
+
     function nextFrameSelected() {
-      window.frameByFrame && applyChangesForCurrentFrame();
+      if (window.frameByFrame) {
+        applyChangesForCurrentFrame();
+        refreshPreviewForFrame(rub.get_current_frame());
+      }
       nextFrame();
     }
 
@@ -346,8 +353,12 @@
       console.log(`frameByFrame status: ${frameByFrame}`);
       resetFrames();
       setTimeout(() => { resetToFirstFrame(); refreshFrame(); }, 500);
+
       makeVisible($("#frame-mode-header"));
       makeInvisible($("#frame-by-frame"));
+
+      makeVisible($("#preview-container"));
+      addPreviews();
     }
 
     function togglePreview() {
@@ -374,9 +385,14 @@
 
     function refreshPreviews() {
       Array.prototype.forEach.call(document.querySelectorAll(".preview-frame"), (el, idx) => {
-        addOriginalFrametoCanvas(getImageDataForFrameIdx(idx), el);
-        applyFrameDecorationsToCanvas(idx, el)
+        refreshPreviewForFrame(idx, el);
       });
+    }
+
+    function refreshPreviewForFrame(frameIdx, canvas) {
+      canvas =  canvas || document.querySelectorAll(".preview-frame")[frameIdx];
+      addOriginalFrametoCanvas(getImageDataForFrameIdx(frameIdx), canvas)
+      applyFrameDecorationsToCanvas(frameIdx, canvas)
     }
 
     function getImageDataForFrameIdx(frameIdx) {
@@ -419,7 +435,7 @@
   <div class="container">
     <div class="field has-addons" id="load-controls">
       <div class="control is-expanded">
-        <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
+        <input type="text" class="input" id="gif-url" name="gif-url" value="brian-demo-1.gif?q=https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
       </div>
       <div class="control">
         <button class="button is-info" type="button" id="use-gif">Load</button>
@@ -437,10 +453,10 @@
   <div class="container p-0">
     <div class="buttons has-addons hidden" id="playback-controls">
       <button class="button is-dark is-expanded" type="button">Frame:&nbsp;<span id="frame-number">...</span></button>
-      <button class="button is-dark" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
-      <button class="button is-dark" type="button" id="next-gif"><i class="fas fa-chevron-double-right"></i></button>
-      <button class="button is-dark" type="button" id="preview-gif"><i class="fas fa-play"></i></button>
-      <button class="button is-dark" type="button" id="stop-preview-gif"><i class="fas fa-pause"></i></button>
+      <button class="button is-dark" type="button" id="prev-gif">P<i class="fas fa-chevron-double-left"></i></button>
+      <button class="button is-dark" type="button" id="next-gif">N<i class="fas fa-chevron-double-right"></i></button>
+      <button class="button is-dark" type="button" id="preview-gif">><i class="fas fa-play"></i></button>
+      <button class="button is-dark" type="button" id="stop-preview-gif">|<i class="fas fa-pause"></i></button>
     </div>
   </div>
 
@@ -478,8 +494,8 @@
       </div>
     </div>
 
-    <div>
-      <h1 onclick="togglePreview()">Show Preview</h1>
+    <div id="preview-container" class="hidden pb-2">
+      <button class="button is-info is-fullwidth" onclick="togglePreview()">Toggle Preview Frames</button>
       <div id="preview">
         <div class="glide">
           <div class="glide__track" data-glide-el="track">
