@@ -500,73 +500,77 @@
     </div>
   </div>
 
-  <div class="container pt-2 hidden" id="edit-controls">
-    <div class="field">
-      <button class="button is-warning is-fullwidth" type="button" id="frame-by-frame">Enable frame by frame mode</button>
-    </div>
-
-    <div class="field has-addons">
-      <p class="control is-expanded">
-        <input class="input" type="text" placeholder="text to put in the gif" value="SMAAAAAASH!" id="text-for-gif">
-      </p>
-    </div>
-
-    <div class="field has-addons">
-      <div class="control is-expanded">
-        <input id="overlay-for-gif" class="input is-expanded" placeholder="https://overlay.com" value="bli-face.png" />
-      </div>
-      <div class="control">
-        <button class="button is-info" type="button" id="add-gif-overlay">Add Overlay</button>
-      </div>
-    </div>
-
-    <div class="pb-2 overlay-controls hidden">
-      <div id="size-slider" class="dragdealer">
-        <div class="handle red-bar">size</div>
+  <section class="section pt-2">
+    <div class="container hidden" id="edit-controls">
+      <div class="field">
+        <button class="button is-warning is-fullwidth" type="button" id="frame-by-frame">Enable frame by frame mode</button>
       </div>
 
-      <div id="vertical-slider" class="dragdealer">
-        <div class="handle red-bar">up/down</div>
+      <div class="field has-addons">
+        <p class="control is-expanded">
+          <input class="input" type="text" placeholder="text to put in the gif" value="SMAAAAAASH!" id="text-for-gif">
+        </p>
       </div>
 
-      <div id="horizontal-slider" class="dragdealer">
-        <div class="handle red-bar">left/right</div>
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input id="overlay-for-gif" class="input is-expanded" placeholder="https://overlay.com" value="bli-face.png" />
+        </div>
+        <div class="control">
+          <button class="button is-info" type="button" id="add-gif-overlay">Add Overlay</button>
+        </div>
       </div>
-    </div>
 
-    <div id="preview-container" class="hidden pb-2">
-      <button class="button is-info is-fullwidth" onclick="togglePreview()">Toggle Preview Frames</button>
-      <div id="preview">
-        <div class="glide">
-          <div class="glide__track" data-glide-el="track">
-            <ul class="glide__slides" id="carousel-container">
-            </ul>
+      <div class="pb-2 overlay-controls hidden">
+        <div id="size-slider" class="dragdealer">
+          <div class="handle red-bar">size</div>
+        </div>
+
+        <div id="vertical-slider" class="dragdealer">
+          <div class="handle red-bar">up/down</div>
+        </div>
+
+        <div id="horizontal-slider" class="dragdealer">
+          <div class="handle red-bar">left/right</div>
+        </div>
+      </div>
+
+      <div id="preview-container" class="hidden pb-2">
+        <button class="button is-info is-fullwidth" onclick="togglePreview()">Toggle Preview Frames</button>
+        <div id="preview">
+          <div class="glide">
+            <div class="glide__track" data-glide-el="track">
+              <ul class="glide__slides" id="carousel-container">
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div>
-      <button class="button is-success is-fullwidth" type="button" id="render-gif" onclick="generateGif()">Render!</button>
+      <div>
+        <button class="button is-success is-fullwidth" type="button" id="render-gif" onclick="generateGif()">Render!</button>
+      </div>
     </div>
-  </div>
+  </section>
 
   <div class="container p-0">
     <img crossorigin="Anonymous" class="hidden" id="overlay" />
   </div>
 
-  <div class="container p-0 render-section hidden">
-    <h1 class="title">Here's your gif hot off the press</h1>
-    <div id="generated">
-      <img crossorigin="Anonymous" id="output-gif" />
+  <section class="section">
+    <div class="container p-0 render-section hidden">
+      <h1 class="title">Here's your gif hot off the press</h1>
+      <div id="generated">
+        <img crossorigin="Anonymous" id="output-gif" />
+      </div>
+      <h1 class="title">Save the image directly, you can not hotlink it!</h1>
+      <h2 class="subtitle">Remember to like follow subscribe</h2>
     </div>
-    <h1 class="title">Save the image directly, you can not hotlink it!</h1>
-    <h2 class="subtitle">Remember to like follow subscribe</h2>
-  </div>
+  </section>
 
   <footer class="footer">
     <div class="container">
-      <div class="content" style="margin-top: 150px">
+      <div class="content">
         <p onclick="toggleVisibility('#licenses')">Licenses / Thank You&nbsp;<i class="fas fa-chevron-down"></i></p>
         <ul id="licenses" class="hidden buttons">
           <button class="button is-rounded"><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></button>
