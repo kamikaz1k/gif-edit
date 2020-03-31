@@ -64,6 +64,7 @@
     function resetToFirstFrame() {
       rub.move_to(0);
       updateFrameNumber();
+      refreshFrame();
     }
 
     function updateFrameNumber() {
@@ -370,7 +371,7 @@
       window.frameByFrame = true;
       console.log(`frameByFrame status: ${frameByFrame}`);
       resetFrames();
-      setTimeout(() => { resetToFirstFrame(); refreshFrame(); }, 500);
+      setTimeout(() => { resetToFirstFrame(); }, 500);
 
       makeVisible($("#frame-mode-header"));
       makeInvisible($("#frame-by-frame"));
