@@ -76,6 +76,7 @@
         refreshPreviewForFrame(rub.get_current_frame());
       }
       prevFrame();
+      window.frameByFrame && updateControlsFromOptions();
     }
 
     function nextFrameSelected() {
@@ -84,6 +85,33 @@
         refreshPreviewForFrame(rub.get_current_frame());
       }
       nextFrame();
+      window.frameByFrame && updateControlsFromOptions();
+    }
+
+    function updateControlsFromOptions() {
+      const frameIdx = rub.get_current_frame();
+      const frameDecorationOptions = window.frames[frameIdx] || {};
+
+      updateCaptionControl(frameDecorationOptions.caption);
+      updateOverlayControl(frameDecorationOptions.overlay);
+    }
+
+    function updateCaptionControl(options) {
+      if (options) {
+        setCaption(options.text);
+      }
+    }
+
+    function updateOverlayControl(options) {
+      if (!options || options.sizeRatio === undefined || !window.slider) return;
+
+      const sizeRatio = options.sizeRatio;
+      const top = options.top;
+      const left = options.left;
+
+      window.slider.setValue(sizeRatio, 0);
+      window.overlayVertical.setValue(top, 0);
+      window.overlayHorizontal.setValue(left, 0);
     }
 
     function loadNextRenderFrame() {
@@ -179,6 +207,10 @@
 
     function getCaption() {
       return getCaptionElement().value;
+    }
+
+    function setCaption(textValue) {
+      getCaptionElement().value = textValue;
     }
 
     function getCaptionElement() {
@@ -381,8 +413,9 @@
 
     function refreshPreviewForFrame(frameIdx, canvas) {
       canvas =  canvas || document.querySelectorAll(".preview-frame")[frameIdx];
-      addOriginalFrametoCanvas(getImageDataForFrameIdx(frameIdx), canvas)
-      applyFrameDecorationsToCanvas(frameIdx, canvas)
+      addOriginalFrametoCanvas(getImageDataForFrameIdx(frameIdx), canvas);
+      applyFrameDecorationsToCanvas(frameIdx, canvas);
+      applyFrameNumberToCanvas(frameIdx, canvas);
     }
 
     function getImageDataForFrameIdx(frameIdx) {
@@ -394,6 +427,22 @@
       ctx.globalCompositeOperation = "source-over";
 
       ctx.putImageData(imageData, 0, 0);
+    }
+
+    function applyFrameNumberToCanvas(frameNumber, canvas) {
+      var ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "source-over"; // layer on top
+
+      ctx.font = "20px Georgia";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "black";
+      ctx.strokeText("#" + frameNumber, 5, 5);
+
+      ctx.fillStyle = "white";
+      ctx.fillText("#" + frameNumber, 5, 5);
     }
 
     function $(selector) {
