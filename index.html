@@ -290,7 +290,7 @@
         const canvas = rub.get_canvas();
         const ctx = canvas.getContext("2d");
 
-        gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height), { copy: true, delay: currentFrame.delay });
+        gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height), { copy: true, delay: currentFrame.delay * 10 });
         loadNextRenderFrame();
         frames++;
       }
