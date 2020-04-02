@@ -458,6 +458,8 @@
       console.log("App Loaded");
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
+      $("#upload-gif").addEventListener("click", e => uploadImage());
+
       document.querySelector("#prev-gif").addEventListener("click", prevFrameSelected);
       document.querySelector("#next-gif").addEventListener("click", nextFrameSelected);
 
@@ -475,7 +477,8 @@
   </script>
 </head>
 <body>
-  <section class="hero" id="load-controls">
+  <section class="hero is-primary" id="load-controls">
+
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Let's load a Gif to edit!</h1>
@@ -488,7 +491,26 @@
           </div>
         </div>
       </div>
+
+      <div class="container" style="margin-top: 1.5rem;">
+        <h1 class="title">or</h1>
+      </div>
+
+      <div class="container" style="margin-top: 1.5rem;">
+        <h1 class="title">Upload something!</h1>
+        <div class="file is-info">
+          <label class="file-label">
+            <input class="file-input" type="file" name="resume">
+            <span class="file-cta">
+              <span class="file-label">
+                Upload
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
     </div>
+
   </section>
 
   <section class="hero">
@@ -583,7 +605,7 @@
   <footer class="footer">
     <div class="container">
       <div class="content">
-        <p onclick="toggleVisibility('#licenses')" class="has-text-centered">Licenses / Thank You&nbsp;<i class="fas fa-chevron-down"></i></p>
+        <p onclick="toggleVisibility('#licenses')" class="has-text-centered" style="cursor: pointer;">Licenses / Thank You&nbsp;<i class="fas fa-chevron-down"></i></p>
         <ul id="licenses" class="hidden buttons">
           <button class="button is-rounded"><a href="https://github.com/buzzfeed/libgif-js/blob/master/libgif.js">libgif - MIT</a></button>
           <button class="button is-rounded"><a href="https://github.com/jnordberg/gif.js">gif.js - MIT</a></button>
