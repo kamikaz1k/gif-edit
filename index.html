@@ -32,7 +32,7 @@
   <script type="text/javascript">
     function loadGif() {
       if (window.rub) return;
-      const inputValue = document.querySelector("#gif-url").value;
+      const inputValue = getGifImgElement().value;
       console.log("loading...", inputValue);
 
       document.querySelector("#img-preview").src = inputValue;
@@ -45,6 +45,10 @@
         makeInvisible($("#load-controls"));
         enableEditControls();
       });
+    }
+
+    function getGifImgElement() {
+      return document.querySelector("#gif-url");
     }
 
     function enableEditControls() {
@@ -450,6 +454,17 @@
       ctx.fillText("#" + frameNumber, 5, 5);
     }
 
+    function handleImageUpload(files) {
+      const file = files[0];
+      const url = URL.createObjectURL(file);
+      getGifImgElement().value = url;
+    }
+
+    // function parser(url) {
+    //   console.log("url", url);
+    //   gifFrames({ url: url, ouputType: 'canvas', frames: 'all' }).then(res => window.parserResult = res).catch(e => console.error(e));
+    // }
+
     function $(selector) {
       return document.querySelector(selector);
     }
@@ -458,7 +473,7 @@
       console.log("App Loaded");
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
-      $("#upload-gif").addEventListener("click", e => uploadImage());
+      // $("#upload-gif").addEventListener("click", e => uploadImage());
 
       document.querySelector("#prev-gif").addEventListener("click", prevFrameSelected);
       document.querySelector("#next-gif").addEventListener("click", nextFrameSelected);
@@ -472,7 +487,9 @@
 
       $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
 
-      getCaptionElement().addEventListener("keydown", () => { console.log("keydown!"); setTimeout(refreshFrame) });
+      getCaptionElement().addEventListener("keydown", () => { setTimeout(refreshFrame) });
+
+      $("#upload-gif").onchange = e => { handleImageUpload(e.currentTarget.files); loadGif(); }
     })
   </script>
 </head>
@@ -483,8 +500,8 @@
       <div class="container">
         <h1 class="title">Let's load a Gif to edit!</h1>
         <div class="field has-addons">
-          <div class="control is-expanded">
-            <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" />
+          <div class="control is-expanded is-info">
+            <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" style="color: rgb(74, 74, 74);" />
           </div>
           <div class="control">
             <button class="button is-info" type="button" id="use-gif">Load</button>
@@ -500,7 +517,7 @@
         <h1 class="title">Upload something!</h1>
         <div class="file is-info">
           <label class="file-label">
-            <input class="file-input" type="file" name="resume">
+            <input class="file-input" type="file" name="upload" id="upload-gif">
             <span class="file-cta">
               <span class="file-label">
                 Upload
