@@ -332,7 +332,7 @@
     }
 
     function addOverlay(onLoadCallback) {
-      const url = document.querySelector("#overlay-for-gif").value;
+      const url = getOverlayPathInput().value;
       console.log("overlay url:", url);
       const img = getOverlayImgElement();
 
@@ -468,7 +468,11 @@
 
     function handleOverlayUpload(files) {
       const file = files[0];
-      getOverlayImgElement().src = URL.createObjectURL(file);
+      getOverlayPathInput().value = URL.createObjectURL(file);
+    }
+
+    function getOverlayPathInput() {
+      return document.querySelector("#overlay-for-gif");
     }
 
     // function parser(url) {
@@ -497,7 +501,7 @@
       // document.querySelector("#use-gif").click();
 
       $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
-      $("#upload-overlay").onchange = e => { handleOverlayUpload(e.currentTarget.files); };
+      $("#upload-overlay").onchange = e => { handleOverlayUpload(e.currentTarget.files); addOverlay(refreshFrame); };
 
       getCaptionElement().addEventListener("keydown", () => { setTimeout(refreshFrame) });
 
