@@ -497,10 +497,11 @@
       // document.querySelector("#use-gif").click();
 
       $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
+      $("#upload-overlay").onchange = e => { handleOverlayUpload(e.currentTarget.files); };
 
       getCaptionElement().addEventListener("keydown", () => { setTimeout(refreshFrame) });
 
-      $("#upload-gif").onchange = e => { handleGifUpload(e.currentTarget.files); loadGif(); }
+      $("#upload-gif").onchange = e => { handleGifUpload(e.currentTarget.files); loadGif(); };
     })
   </script>
 </head>
@@ -577,7 +578,11 @@
           <input id="overlay-for-gif" class="input is-expanded" placeholder="https://overlay.com" value="bli-face.png" />
         </div>
         <div class="control">
-          <button class="button is-info" type="button" id="add-gif-overlay">Add Overlay</button>
+          <button class="button is-primary" type="button" id="add-gif-overlay">Add Overlay</button>
+        </div>
+        <div class="control">
+          <button class="button is-info" type="button" onclick="document.querySelector('#upload-overlay').click()">Upload</button>
+          <input class="hidden file-input" type="file" name="upload-overlay" id="upload-overlay">
         </div>
       </div>
 
