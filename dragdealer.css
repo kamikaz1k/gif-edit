@@ -17,14 +17,16 @@
   left: 0;
   cursor: pointer;
 }
-.dragdealer .red-bar {
+.dragdealer .red-bar, .dragdealer .bar {
   width: 100px;
   height: 30px;
-  background: #CC0000;
   color: #FFF;
   font-size: 14px;
   line-height: 30px;
   text-align: center;
+}
+.dragdealer .red-bar {
+  background: #CC0000;
 }
 .dragdealer .disabled {
   background: #898989;
