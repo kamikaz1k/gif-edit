@@ -2,7 +2,7 @@
   "name": "gif-edit",
   "version": "1.0.0",
   "description": "edit gifs",
-  "main": "\"\"",
+  "main": "",
   "scripts": {
     "start": "http-server -a localhost -p 8000",
     "test": "cypress run"
