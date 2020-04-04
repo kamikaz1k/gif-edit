@@ -49,7 +49,7 @@
         rub.pause();
         resetFrames();
         startPreview();
-        makeInvisible($("#load-controls"));
+        makeInvisible(find("#load-controls"));
         enableEditControls();
       });
     }
@@ -59,8 +59,8 @@
     }
 
     function enableEditControls() {
-      makeVisible($("#edit-controls"));
-      makeVisible($("#playback-controls"));
+      makeVisible(find("#edit-controls"));
+      makeVisible(find("#playback-controls"));
     }
 
     function initSliders() {
@@ -388,10 +388,10 @@
       resetFrames();
       setTimeout(() => { resetToFirstFrame(); }, 500);
 
-      makeVisible($("#frame-mode-header"));
-      makeInvisible($("#frame-by-frame"));
+      makeVisible(find("#frame-mode-header"));
+      makeInvisible(find("#frame-by-frame"));
 
-      makeVisible($("#preview-container"));
+      makeVisible(find("#preview-container"));
       addPreviews();
     }
 
@@ -400,12 +400,12 @@
     }
 
     function toggleVisibility(selector) {
-      const element = $(selector);
+      const element = find(selector);
       element.classList.contains("hidden") ? makeVisible(element) : makeInvisible(element);
     }
 
     function addPreviews() {
-      const preview = $("#carousel-container");
+      const preview = find("#carousel-container");
       const canvas = rub.get_canvas();
       preview.innerHTML = window.frames.map(_ =>
         `<li class="glide__slide">` +
@@ -481,7 +481,7 @@
     //   gifFrames({ url: url, ouputType: 'canvas', frames: 'all' }).then(res => window.parserResult = res).catch(e => console.error(e));
     // }
 
-    function $(selector) {
+    function find(selector) {
       return document.querySelector(selector);
     }
 
@@ -489,7 +489,7 @@
       console.log("App Loaded");
 
       document.querySelector("#use-gif").addEventListener("click", e => loadGif());
-      // $("#upload-gif").addEventListener("click", e => uploadImage());
+      // find("#upload-gif").addEventListener("click", e => uploadImage());
 
       document.querySelector("#prev-gif").addEventListener("click", prevFrameSelected);
       document.querySelector("#next-gif").addEventListener("click", nextFrameSelected);
@@ -497,16 +497,16 @@
       document.querySelector("#preview-gif").addEventListener("click", startPreview);
       document.querySelector("#stop-preview-gif").addEventListener("click", stopPreview);
 
-      $("#frame-by-frame").addEventListener("click", enableFrameByFrame);
+      find("#frame-by-frame").addEventListener("click", enableFrameByFrame);
 
       // document.querySelector("#use-gif").click();
 
-      $("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
-      $("#upload-overlay").onchange = e => { handleOverlayUpload(e.currentTarget.files); addOverlay(refreshFrame); };
+      find("#add-gif-overlay").addEventListener("click", () => { addOverlay(refreshFrame); });
+      find("#upload-overlay").onchange = e => { handleOverlayUpload(e.currentTarget.files); addOverlay(refreshFrame); };
 
       getCaptionElement().addEventListener("keydown", () => { setTimeout(refreshFrame) });
 
-      $("#upload-gif").onchange = e => { handleGifUpload(e.currentTarget.files); loadGif(); };
+      find("#upload-gif").onchange = e => { handleGifUpload(e.currentTarget.files); loadGif(); };
     })
   </script>
 </head>
