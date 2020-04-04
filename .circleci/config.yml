@@ -2,6 +2,8 @@ version: 2.1
 
 jobs:
   build-and-test:
+    docker:
+      - image: circleci/node:10.15.2
     steps:
       - checkout
       - run: npm ci
@@ -16,6 +18,6 @@ jobs:
           path: results
 
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  build-and-test:
+    jobs:
+      - build-and-test
