@@ -12,14 +12,14 @@ jobs:
             - run: npm install http-server cypress
             - run:
                 name: "serve app"
-                command: http-server -a localhost -p 8000
+                command: npm start
                 background: true
             - run:
                 name: "run cypress"
-                command: cypress run
+                command: npm test
             - store_test_results:
                 path: results
-                
+
 workflows:
     build-and-test:
       jobs:
