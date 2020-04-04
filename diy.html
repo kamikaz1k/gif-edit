@@ -20,23 +20,48 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
+    function drawStrokeOntoCanvas(canvas, previousPosition, currentPosition) {
+      if (!(canvas && previousPosition && currentPosition)) {
+        console.log("not enuff stough");
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.globalCompositeOperation = "source-over"; // layer on top
+
+      ctx.strokeStyle = 'orange';
+      ctx.lineWidth = 15;
+
+      ctx.beginPath();       // Start a new path
+      ctx.moveTo(previousPosition.x, previousPosition.y);    // Move the pen to (30, 50)
+      ctx.lineTo(currentPosition.x, currentPosition.y);  // Draw a line to (150, 100)
+      ctx.stroke();          // Render the path
+    }
+
     function initDrawHandlers(canvas) {
       canvas.on = on;
 
-      canvas.on("touchstart", e => {
+      canvas.on("touchstart", function(e) {
         drawState.penDown = true;
+        drawState.previousPosition = getPositionForTouchMove(this, e);
         console.log(e, drawState);
       });
 
       canvas.on("touchend", e => {
         drawState.penDown = false;
+        drawState.previousPosition = null;
         console.log(e, drawState);
       });
 
       canvas.on("touchmove", function(e) {
         e.preventDefault();
         if (!drawState.penDown) return;
-        drawState.previousPosition = getPositionForTouchMove(this, e);
+
+        const currentPosition = getPositionForTouchMove(this, e);
+        drawStrokeOntoCanvas(this, drawState.previousPosition, currentPosition);
+
+        drawState.previousPosition = currentPosition;
         console.log(drawState.previousPosition.x, drawState.previousPosition.y);
       });
     }
