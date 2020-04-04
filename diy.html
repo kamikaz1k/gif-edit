@@ -9,25 +9,62 @@
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script type="text/javascript">
 
+    window.drawState = {};
 
     function find(selector) {
       return document.querySelector(selector);
     }
 
     function resetCanvas(canvas) {
-      canvas = canvas || find("#main-canvas");
       const ctx = canvas.getContext("2d");
-      // ctx.globalCompositeOperation = "source-over"; // layer on top
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function initDrawHandlers(canvas) {
+      canvas.on = on;
+
+      canvas.on("touchstart", e => {
+        drawState.penDown = true;
+        console.log(e, drawState);
+      });
+
+      canvas.on("touchend", e => {
+        drawState.penDown = false;
+        console.log(e, drawState);
+      });
+
+      canvas.on("touchmove", function(e) {
+        e.preventDefault();
+        if (!drawState.penDown) return;
+        drawState.previousPosition = getPositionForTouchMove(this, e);
+        console.log(drawState.previousPosition.x, drawState.previousPosition.y);
+      });
+    }
+
+    function on(eventName, handler) {
+      this.addEventListener(eventName, handler);
+    }
+
+    function getPositionForTouchMove(canvas, event) {
+      const touchEvent = event.targetTouches[0];
+      const box = canvas.getBoundingClientRect();
+
+      return {
+        x: touchEvent.clientX - box.left,
+        y: touchEvent.clientY - box.top
+      };
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
       const containerWidth = find("#main-canvas-container").clientWidth;
-      find("#main-canvas").height = containerWidth, find("#main-canvas").width = containerWidth;
+      const canvas = find("#main-canvas");
 
-      resetCanvas();
+      canvas.height = containerWidth, canvas.width = containerWidth;
+
+      resetCanvas(canvas);
+      initDrawHandlers(canvas);
     });
   </script>
 </head>
@@ -55,7 +92,7 @@
     </div>
   </section> -->
 
-  <section class="section">
+  <section class="section" style="background-color: #00d1b2; color: #fff;">
     <div class="container">
       <h1 class="title">Draw something!</h1>
       <h2 class="subtitle">
