@@ -1,12 +1,21 @@
 version: 2.1
-orbs:
-  cypress: cypress-io/cypress@1.19.1
+
+jobs:
+  build-and-test:
+    steps:
+      - checkout
+      - run: npm ci
+      - run:
+          name: "serve app"
+          command: npm start
+          background: true
+      - run:
+          name: "run cypress"
+          command: npm test
+      - store_test_results:
+          path: results
 
 workflows:
-  build:
-    jobs:
-      - cypress/run:
-          start: 'npm start'
-          post-steps:
-            - store_test_results:
-                path: results
+    build-and-test:
+      jobs:
+        - build-and-test
