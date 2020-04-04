@@ -1,26 +1,12 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
-jobs:
-  build-and-test:
-    executor:
-      name: node/default
-    steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm ci
-            - run:
-                name: "serve app"
-                command: npm start
-                background: true
-            - run:
-                name: "run cypress"
-                command: npm test
-            - store_test_results:
-                path: results
+  cypress: cypress-io/cypress@1.19.1
 
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  build:
+    jobs:
+      - cypress/run:
+          start: 'npm start'
+          post-steps:
+            - store_test_results:
+                path: results
