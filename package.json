@@ -1,0 +1,24 @@
+{
+  "name": "gif-edit",
+  "version": "1.0.0",
+  "description": "edit gifs",
+  "main": "\"\"",
+  "scripts": {
+    "start": "http-server -a localhost -p 8000",
+    "test": "cypress run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kamikaz1k/gif-edit.git"
+  },
+  "author": "Kaiser Dandangi",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/kamikaz1k/gif-edit/issues"
+  },
+  "homepage": "https://github.com/kamikaz1k/gif-edit#readme",
+  "devDependencies": {
+    "cypress": "^4.3.0",
+    "http-server": "^0.12.1"
+  }
+}
