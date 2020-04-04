@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: circleci/node:10.15.2
+      - image: cypress/base:10.18.1
     steps:
       - checkout
       - run: npm ci
