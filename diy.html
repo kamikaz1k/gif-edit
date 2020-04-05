@@ -6,6 +6,28 @@
   <title>Gif'r</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <link rel="stylesheet" href="bulma.min.css">
+  <style>
+    .hidden {
+      display: none !important;
+    }
+    .handle {
+      user-select: none;
+    }
+    .p-0 { padding: 0px; }
+    .pt-1 { padding-top: 0.5rem; }
+    .pt-2 { padding-top: 1rem; }
+    .pb-2 { padding-bottom: 1rem; }
+    .text-center { text-align: center; }
+
+    .square-edges, #playback-controls .button {
+      border-radius: 0;
+    }
+
+    .is-danger {
+      background-color: #f14668;
+      color: #fff;
+    }
+  </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script type="text/javascript">
 
@@ -20,9 +42,9 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    function drawStrokeOntoCanvas(canvas, previousPosition, currentPosition) {
+    function drawStrokeOntoCanvas(canvas, previousPosition, currentPosition, drawOptions = {}) {
       if (!(canvas && previousPosition && currentPosition)) {
-        console.log("not enuff stough");
+        console.error("not enuff stough");
         return;
       }
 
@@ -30,16 +52,17 @@
 
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
-      ctx.strokeStyle = 'orange';
-      ctx.lineWidth = 15;
+      ctx.strokeStyle = drawOptions.penColour || 'orange';
+      ctx.lineWidth = 10;
 
-      ctx.beginPath();       // Start a new path
-      ctx.moveTo(previousPosition.x, previousPosition.y);    // Move the pen to (30, 50)
-      ctx.lineTo(currentPosition.x, currentPosition.y);  // Draw a line to (150, 100)
-      ctx.stroke();          // Render the path
+      ctx.beginPath();
+      ctx.moveTo(previousPosition.x, previousPosition.y);
+      ctx.lineTo(currentPosition.x, currentPosition.y);
+      ctx.stroke();
     }
 
-    function initDrawHandlers(canvas) {
+    // Cool brushy effect
+    function initBrushyDrawHandlers(canvas) {
       canvas.on = on;
 
       canvas.on("touchstart", function(e) {
@@ -59,15 +82,56 @@
         if (!drawState.penDown) return;
 
         const currentPosition = getPositionForTouchMove(this, e);
-        drawStrokeOntoCanvas(this, drawState.previousPosition, currentPosition);
+        drawStrokeOntoCanvas(this, drawState.previousPosition, currentPosition, { penColour: drawState.penColour });
 
         drawState.previousPosition = currentPosition;
         console.log(drawState.previousPosition.x, drawState.previousPosition.y);
       });
     }
 
+    function initDrawHandlers(canvas) {
+      let ctx;
+
+      canvas.on = on;
+
+      canvas.on("touchstart", function(e) {
+        drawState.penDown = true;
+        drawState.previousPosition = getPositionForTouchMove(this, e);
+
+        ctx = canvas.getContext("2d");
+        ctx.strokeStyle = drawState.penColour || "orange";
+        ctx.lineWidth = drawState.lineWidth || 15;
+        ctx.lineJoin = "round";
+
+        ctx.beginPath();
+        ctx.moveTo(drawState.previousPosition.x, drawState.previousPosition.y);
+      });
+
+      canvas.on("touchend", function(e) {
+        drawState.penDown = false;
+        drawState.previousPosition = null;
+      });
+
+      canvas.on("touchmove", function(e) {
+        e.preventDefault();
+
+        if (!drawState.penDown) return;
+
+        const currentPosition = getPositionForTouchMove(this, e);
+        drawState.previousPosition = currentPosition;
+
+        ctx.lineTo(drawState.previousPosition.x, drawState.previousPosition.y);
+        ctx.stroke();
+      });
+    }
+
     function on(eventName, handler) {
       this.addEventListener(eventName, handler);
+    }
+
+    function setPenColour(colour) {
+      drawState.penColour = colour;
+      console.log(drawState);
     }
 
     function getPositionForTouchMove(canvas, event) {
@@ -90,6 +154,11 @@
 
       resetCanvas(canvas);
       initDrawHandlers(canvas);
+
+      const colours = ["black", "orange", "white"];
+      find("#colour-palette").innerHTML = colours.map(c =>
+        `<button class="button" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;"></button>`
+      ).join("");
     });
   </script>
 </head>
@@ -125,6 +194,8 @@
       </h2>
       <div id="main-canvas-container">
         <canvas id="main-canvas" width="100%" height="100%">
+      </div>
+      <div class="buttons has-addons pt-1" id="colour-palette">
       </div>
     </div>
   </section>
