@@ -36,6 +36,8 @@
     }
   </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
+  <script src="gif.js"></script>
+  <script src="gif.worker.js"></script>
   <script type="text/javascript">
 
     window.drawState = {};
@@ -174,14 +176,43 @@
       console.log("addFrame", canvas);
       find("#canvas-preview-section").appendChild(canvas);
 
-      window.frameData[window.frameData.frameCount] = mainCanvasImageData;
+      window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
       window.frameData.frameCount++;
 
       canvas.scrollIntoView({ behavior: "smooth" });
     }
 
-    function renderGif() {
+    function generateGif() {
       console.error("DID NOT IMPLEMENT");
+    }
+
+    function generateGif() {
+      const gif = new GIF({
+        workers: 2,
+        quality: 10
+      });
+
+      for (let i = 0; i < window.frameData.frameCount; i++) {
+        if (!window.frameData[i]) continue;
+        const currentFrame = window.frameData[i];
+        console.log("currentFrame", currentFrame);
+        gif.addFrame(currentFrame.imageData, { copy: true, delay: currentFrame.delay * 10 });
+      }
+
+      gif.on('finished', function(blob) {
+        const url = URL.createObjectURL(blob);
+        console.log("gif ready:", url);
+        window.lastRender = blob;
+
+        const renderedImg = find("#output-gif");
+        renderedImg.src = url;
+        renderedImg.crossOrigin = "Anonymous";
+
+        setTimeout(() => renderedImg.scrollIntoView({ behavior: "smooth" }), 500);
+      });
+
+      console.log("rendering...");
+      gif.render();
     }
 
     function getPositionForTouchMove(canvas, event) {
@@ -213,7 +244,7 @@
       ).join("");
 
       find("#add-frame").addEventListener("click", e => addFrame());
-      find("#render-gif").addEventListener("click", e => renderGif());
+      find("#generate-gif").addEventListener("click", e => generateGif());
     });
   </script>
 </head>
@@ -255,7 +286,16 @@
       </div>
       <div class="buttons has-addons is-fullwidth">
         <button class="button" id="add-frame">Add Frame</button>
-        <button class="button" id="render-gif">Render Gif</button>
+        <button class="button" id="generate-gif">Render Gif</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title">You GIF is ready!</h1>
+      <div>
+        <img id="output-gif">
       </div>
     </div>
   </section>
