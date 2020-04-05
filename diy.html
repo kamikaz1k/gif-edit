@@ -167,6 +167,8 @@
 
       window.frameData[window.frameData.frameCount] = mainCanvasImageData;
       window.frameData.frameCount++;
+
+      canvas.scrollIntoView({ behavior: "smooth" });
     }
 
     function renderGif() {
