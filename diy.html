@@ -155,9 +155,9 @@
       resetCanvas(canvas);
       initDrawHandlers(canvas);
 
-      const colours = ["black", "orange", "white"];
+      const colours = ["black", "grey", "white", "red", "orange", "yellow", "green", "deepskyblue", "blue", "purple", "pink", "saddlebrown"];
       find("#colour-palette").innerHTML = colours.map(c =>
-        `<button class="button" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;"></button>`
+        `<button class="button square-edges" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;">&nbsp;</button>`
       ).join("");
     });
   </script>
@@ -195,7 +195,7 @@
       <div id="main-canvas-container">
         <canvas id="main-canvas" width="100%" height="100%">
       </div>
-      <div class="buttons has-addons pt-1" id="colour-palette">
+      <div class="buttons has-addons pt-1" id="colour-palette" style="justify-content: center;">
       </div>
     </div>
   </section>
