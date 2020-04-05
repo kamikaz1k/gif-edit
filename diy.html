@@ -107,14 +107,23 @@
 
         ctx = canvas.getContext("2d");
         ctx.strokeStyle = drawState.penColour || "orange";
+        ctx.fillStyle = drawState.penColour || "orange"; // for the starting and ending dots
         ctx.lineWidth = drawState.lineWidth || 15;
         ctx.lineJoin = "round";
+
+        ctx.beginPath();
+        ctx.arc(drawState.previousPosition.x, drawState.previousPosition.y, ctx.lineWidth / 2, 0, 2 * Math.PI);
+        ctx.fill();
 
         ctx.beginPath();
         ctx.moveTo(drawState.previousPosition.x, drawState.previousPosition.y);
       });
 
       canvas.on("touchend", function(e) {
+        ctx.beginPath();
+        ctx.arc(drawState.previousPosition.x, drawState.previousPosition.y, ctx.lineWidth / 2, 0, 2 * Math.PI);
+        ctx.fill();
+
         drawState.penDown = false;
         drawState.previousPosition = null;
       });
