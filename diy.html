@@ -6,6 +6,7 @@
   <title>Gif'r</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <link rel="stylesheet" href="bulma.min.css">
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap&family=Leckerli+One&family=Noto+Serif" rel="stylesheet"> -->
   <style>
     .hidden {
       display: none !important;
@@ -208,6 +209,7 @@
         renderedImg.src = url;
         renderedImg.crossOrigin = "Anonymous";
 
+        makeVisible(find("#render-section"));
         setTimeout(() => renderedImg.scrollIntoView({ behavior: "smooth" }), 500);
       });
 
@@ -223,6 +225,10 @@
         x: touchEvent.clientX - box.left,
         y: touchEvent.clientY - box.top
       };
+    }
+
+    function makeVisible(element) {
+      element.classList.remove("hidden");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -250,50 +256,50 @@
 </head>
 <body>
 
-  <nav class="navbar _is-primary" role="navigation" aria-label="main navigation">
+  <!-- <nav class="navbar _is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="favicon.png" alt="Gif'r" >
+        <span style="font-family: 'Noto Serif', serif; margin-left: 0.5rem;">Gif Tools</span>
       </a>
 
-      <!-- <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a> -->
-    </div>
-  </nav>
+      <a class="navbar-item" href="/">
+        Gif Editor
+      </a>
 
-  <!-- <section class="hero is-primary">
+      <a class="navbar-item" href="/diy.html">
+        Gif Sketchpad
+      </a>
+    </div>
+  </nav> -->
+`
+  <section class="hero is-primary">
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">Let's load a Gif to edit!</h1>
-      </div>
-    </div>
-  </section> -->
+        <h1 class="title">Draw something!</h1>
+        <div id="canvas-preview-section" class="mb-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
 
-  <section class="section" style="background-color: #00d1b2; color: #fff;">
-    <div class="container">
-      <h1 class="title">Draw something!</h1>
-      <!-- <h2 class="subtitle">
-        A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
-      </h2> -->
-      <div id="canvas-preview-section" class="mb-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
-      <div id="main-canvas-container">
-        <canvas id="main-canvas" width="100%" height="100%">
-      </div>
-      <div class="buttons has-addons pt-1" id="colour-palette" style="justify-content: center;">
-      </div>
-      <div class="buttons has-addons is-fullwidth">
-        <button class="button" id="add-frame">Add Frame</button>
-        <button class="button" id="generate-gif">Render Gif</button>
+        <div id="main-canvas-container">
+          <canvas id="main-canvas" width="100%" height="100%">
+        </div>
+
+        <div class="buttons has-addons pt-1" id="colour-palette" style="justify-content: center;">
+        </div>
+
+        <div class="buttons has-addons is-fullwidth">
+          <button class="button" id="add-frame">Add Frame</button>
+          <button class="button" id="generate-gif">Render Gif</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section hidden" id="render-section">
     <div class="container">
       <h1 class="title">You GIF is ready!</h1>
+      <h2 class="subtitle">
+        You have to <strong>Save the Image</strong>, you won't be able to hot link it.
+      </h2>
       <div>
         <img id="output-gif">
       </div>
