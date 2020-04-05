@@ -134,6 +134,24 @@
       console.log(drawState);
     }
 
+    function addFrame() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = 50, canvas.height = 50;
+
+      ctx.fillRect(0, 0, 50, 50);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, 49, 49);
+
+      console.log("addFrame", canvas);
+      find("#canvas-preview-section").appendChild(canvas);
+    }
+
+    function renderGif() {
+      console.error("DID NOT IMPLEMENT");
+    }
+
     function getPositionForTouchMove(canvas, event) {
       const touchEvent = event.targetTouches[0];
       const box = canvas.getBoundingClientRect();
@@ -159,6 +177,9 @@
       find("#colour-palette").innerHTML = colours.map(c =>
         `<button class="button square-edges" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;">&nbsp;</button>`
       ).join("");
+
+      find("#add-frame").addEventListener("click", e => addFrame());
+      find("#render-gif").addEventListener("click", e => renderGif());
     });
   </script>
 </head>
@@ -189,13 +210,18 @@
   <section class="section" style="background-color: #00d1b2; color: #fff;">
     <div class="container">
       <h1 class="title">Draw something!</h1>
-      <h2 class="subtitle">
+      <!-- <h2 class="subtitle">
         A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
-      </h2>
+      </h2> -->
+      <div id="canvas-preview-section" style="overflow-x: auto; display: flex;"></div>
       <div id="main-canvas-container">
         <canvas id="main-canvas" width="100%" height="100%">
       </div>
       <div class="buttons has-addons pt-1" id="colour-palette" style="justify-content: center;">
+      </div>
+      <div class="buttons has-addons is-fullwidth">
+        <button class="button" id="add-frame">Add Frame</button>
+        <button class="button" id="render-gif">Render Gif</button>
       </div>
     </div>
   </section>
