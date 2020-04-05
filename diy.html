@@ -20,6 +20,7 @@
     .pb-2 { padding-bottom: 1rem; }
 
     .mb-2 { margin-bottom: 1rem; }
+    .mt-2 { margin-top: 1rem; }
 
     .text-center { text-align: center; }
 
@@ -49,6 +50,7 @@
 
     function resetCanvas(canvas) {
       const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -250,13 +252,14 @@
       ).join("");
 
       find("#add-frame").addEventListener("click", e => addFrame());
+      find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
     });
   </script>
 </head>
 <body>
 
-  <!-- <nav class="navbar _is-primary" role="navigation" aria-label="main navigation">
+  <!-- <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="favicon.png" alt="Gif'r" >
@@ -273,23 +276,26 @@
     </div>
   </nav> -->
 `
-  <section class="hero is-primary">
+  <section class="hero">
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Draw something!</h1>
-        <div id="canvas-preview-section" class="mb-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
 
         <div id="main-canvas-container">
           <canvas id="main-canvas" width="100%" height="100%">
         </div>
 
-        <div class="buttons has-addons pt-1" id="colour-palette" style="justify-content: center;">
+        <div id="canvas-preview-section" class="mt-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
+
+        <div class="buttons has-addons mt-2" id="colour-palette" style="justify-content: center;">
         </div>
 
-        <div class="buttons has-addons is-fullwidth">
-          <button class="button" id="add-frame">Add Frame</button>
-          <button class="button" id="generate-gif">Render Gif</button>
+        <div class="buttons has-addons is-centered">
+          <button class="button is-primary" id="add-frame">Add Frame</button>
+          <button class="button is-danger" id="clear-frame">Clear Frame</button>
         </div>
+
+        <button class="button is-success is-fullwidth" id="generate-gif">Render Gif</button>
       </div>
     </div>
   </section>
