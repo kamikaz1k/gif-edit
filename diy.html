@@ -113,7 +113,7 @@
         ctx = canvas.getContext("2d");
         ctx.strokeStyle = drawState.penColour || "orange";
         ctx.fillStyle = drawState.penColour || "orange"; // for the starting and ending dots
-        ctx.lineWidth = drawState.lineWidth || 15;
+        ctx.lineWidth = brushStyle.lineWidth || 15;
         ctx.lineJoin = "round";
 
         ctx.beginPath();
@@ -237,6 +237,13 @@
       console.log("App Loaded");
 
       window.frameData = { frameCount: 0 };
+      window.penColour = "orange";
+      window.brushStyleOptions = {
+        small: { lineWidth: 8 },
+        normal: { lineWidth: 15 },
+        big: { lineWidth: 25 }
+      }
+      selectBrush("normal")
 
       const containerWidth = find("#main-canvas-container").clientWidth;
       const canvas = find("#main-canvas");
@@ -254,7 +261,16 @@
       find("#add-frame").addEventListener("click", e => addFrame());
       find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
+
+      // find("#brush-sizes-control").addEventListener
     });
+
+    function selectBrush(size) {
+      const brushStyle = window.brushStyleOptions[size];
+      find("#brush-size-value").innerHTML = brushStyle.lineWidth;
+
+      window.brushStyle = brushStyle;
+    }
   </script>
 </head>
 <body>
@@ -278,6 +294,8 @@
 `
   <section class="hero">
     <div class="hero-body">
+  <!-- <div class="section">
+    <div> -->
       <div class="container">
         <h1 class="title">Draw something!</h1>
 
@@ -290,11 +308,39 @@
         <div class="buttons has-addons mt-2" id="colour-palette" style="justify-content: center;">
         </div>
 
+        <style type="text/css">
+          .dot {
+            height: 1rem;
+            width: 1rem;
+            background-color: black;
+            border-radius: 50%;
+          }
+
+          .dot.big {
+            height: 1.25rem;
+            width: 1.25rem;
+          }
+
+          .dot.bigger {
+            height: 1.5rem;
+            width: 1.5rem;
+          }
+        </style>
+
+        <div class="buttons has-addons is-centered mt-2" id="brush-sizes-control">
+          <span style="padding-right: 1rem;"><i class="fas fa-paint-brush-alt"></i>&nbsp;<span id="brush-size-value"></span></span>
+          <button class="button small is-light" type="button" onclick="selectBrush('small')"><span class="dot small"></span></button>
+          <button class="button normal is-light" type="button" onclick="selectBrush('normal')"><span class="dot big"></span></button>
+          <button class="button big is-light square-edges" type="button" onclick="selectBrush('big')"><span class="dot bigger"></span></button>
+        </div>
+
         <div class="buttons has-addons is-centered">
+          <!-- <button class="button is-primary" id="load-image">Load Image</button> -->
           <button class="button is-primary" id="add-frame">Add Frame</button>
           <button class="button is-danger" id="clear-frame">Clear Frame</button>
         </div>
 
+        <!-- <button class="button is-success is-fullwidth" id="export-png">Save PNG</button> -->
         <button class="button is-success is-fullwidth" id="generate-gif">Render Gif</button>
       </div>
     </div>
