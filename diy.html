@@ -141,18 +141,32 @@
       console.log(drawState);
     }
 
+    function initScratchCanvas() {
+      const mainCanvas = find("#main-canvas");
+      const canvas = document.createElement("canvas");
+      canvas.width = mainCanvas.width, canvas.height = mainCanvas.height;
+      return canvas;
+    }
+
     function addFrame() {
+      const mainCanvas = find("#main-canvas");
+      const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       canvas.width = 50, canvas.height = 50;
 
-      ctx.fillRect(0, 0, 50, 50);
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, 49, 49);
+      let scratchCanvas = initScratchCanvas();
+      let scratchCtx = scratchCanvas.getContext("2d");
+      scratchCtx.putImageData(mainCanvasImageData, 0, 0);
+
+      ctx.scale(canvas.width / mainCanvas.width, canvas.height / mainCanvas.height);
+      ctx.drawImage(scratchCanvas, 0, 0);
 
       console.log("addFrame", canvas);
       find("#canvas-preview-section").appendChild(canvas);
+
+      window.frameData[window.frameData.frameCount] = mainCanvasImageData;
+      window.frameData.frameCount++;
     }
 
     function renderGif() {
@@ -171,6 +185,8 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
+
+      window.frameData = { frameCount: 0 };
 
       const containerWidth = find("#main-canvas-container").clientWidth;
       const canvas = find("#main-canvas");
