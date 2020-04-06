@@ -212,7 +212,7 @@
       window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
       window.frameData.frameCount++;
 
-      canvas.scrollIntoView({ behavior: "smooth" });
+      canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     function generateGif() {
@@ -259,10 +259,14 @@
       element.classList.remove("hidden");
     }
 
+    function makeInvisible(element) {
+      element.classList.add("hidden");
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
-      window.frameData = { frameCount: 0 };
+      initFrameData();
       window.penColour = "orange";
       window.brushStyleOptions = {
         small: { lineWidth: 8 },
@@ -298,6 +302,22 @@
 
       window.brushStyle = brushStyle;
     }
+
+    function handleResetAll() {
+      window.confirm("Are you sure you want to discard everything?") && resetAll();
+    }
+
+    function initFrameData() {
+      window.frameData = { frameCount: 0 };
+    }
+
+    function resetAll() {
+      resetCanvas(find("#main-canvas"));
+      find("#canvas-preview-section").innerHTML = "";
+      makeInvisible(find("#render-section"));
+      initFrameData();
+      window.scrollTo(0, 0);
+    }
   </script>
 </head>
 <body>
@@ -306,7 +326,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="favicon.png" alt="Gif'r" >
-        <span style="font-family: 'Noto Serif', serif; margin-left: 0.5rem;">Gif Tools</span>
+        <span style="font-family: 'Noto Serif', serif; margin-left: 0.5rem;">Draw Something!</span>
       </a>
 
       <a class="navbar-item" href="/">
@@ -320,11 +340,11 @@
   </nav> -->
 `
   <section class="hero">
-    <div class="hero-body">
+    <div class="hero-body pt-1">
   <!-- <div class="section">
     <div> -->
       <div class="container">
-        <h1 class="title">Draw something!</h1>
+        <!-- <h1 class="title" id="page-header" onclick="makeInvisible(this)">Draw something!</h1> -->
 
         <div id="main-canvas-container">
           <canvas id="main-canvas" width="100%" height="100%">
@@ -352,11 +372,20 @@
         <div class="buttons has-addons is-centered">
           <!-- <button class="button is-primary" id="load-image">Load Image</button> -->
           <button class="button is-primary" id="add-frame">Add Frame</button>
-          <button class="button is-danger" id="clear-frame">Clear Frame</button>
+          <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
+
         </div>
 
         <!-- <button class="button is-success is-fullwidth" id="export-png">Save PNG</button> -->
-        <button class="button is-success is-fullwidth" id="generate-gif">Render Gif</button>
+        <div class="buttons">
+          <button class="button is-success is-fullwidth" id="generate-gif">Render Gif</button>
+          <button class="button is-danger is-fullwidth" onclick="handleResetAll()">
+            <span>Reset All</span>
+            <!-- <span class="icon">
+              <i class="fas fa-exclamation"></i>
+            </span> -->
+          </button>
+        </div>
       </div>
     </div>
   </section>
