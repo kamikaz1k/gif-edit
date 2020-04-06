@@ -152,7 +152,7 @@
 
     function setPenColour(colour) {
       drawState.penColour = colour;
-      console.log(drawState);
+      find("#brush-colour-preview").style.color = colour;
     }
 
     function initScratchCanvas() {
@@ -183,10 +183,6 @@
       window.frameData.frameCount++;
 
       canvas.scrollIntoView({ behavior: "smooth" });
-    }
-
-    function generateGif() {
-      console.error("DID NOT IMPLEMENT");
     }
 
     function generateGif() {
@@ -241,7 +237,8 @@
       window.brushStyleOptions = {
         small: { lineWidth: 8 },
         normal: { lineWidth: 15 },
-        big: { lineWidth: 25 }
+        big: { lineWidth: 25 },
+        eraser: { eraser: true }
       }
       selectBrush("normal")
 
@@ -258,16 +255,16 @@
         `<button class="button square-edges" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;">&nbsp;</button>`
       ).join("");
 
+      setPenColour("orange");
+
       find("#add-frame").addEventListener("click", e => addFrame());
       find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
-
-      // find("#brush-sizes-control").addEventListener
     });
 
     function selectBrush(size) {
       const brushStyle = window.brushStyleOptions[size];
-      find("#brush-size-value").innerHTML = brushStyle.lineWidth;
+      find("#brush-size-value").innerHTML = brushStyle.lineWidth || (brushStyle.eraser ? "Eraser" : "");
 
       window.brushStyle = brushStyle;
     }
@@ -328,10 +325,17 @@
         </style>
 
         <div class="buttons has-addons is-centered mt-2" id="brush-sizes-control">
-          <span style="padding-right: 1rem;"><i class="fas fa-paint-brush-alt"></i>&nbsp;<span id="brush-size-value"></span></span>
-          <button class="button small is-light" type="button" onclick="selectBrush('small')"><span class="dot small"></span></button>
-          <button class="button normal is-light" type="button" onclick="selectBrush('normal')"><span class="dot big"></span></button>
-          <button class="button big is-light square-edges" type="button" onclick="selectBrush('big')"><span class="dot bigger"></span></button>
+          <span>
+            <button class="button is-white square-edges">
+              <!-- <span style="border: none; padding-right: 1rem;"><i class="fas fa-square fa-lg"></i></span> -->
+              <i id="brush-colour-preview" class="fas fa-paint-brush-alt"></i>
+              &nbsp;<span id="brush-size-value"></span>
+            </button>
+          </span>
+          <button class="button is-light" type="button" onclick="selectBrush('small')"><span class="dot small"></span></button>
+          <button class="button is-light" type="button" onclick="selectBrush('normal')"><span class="dot big"></span></button>
+          <button class="button is-light" type="button" onclick="selectBrush('big')"><span class="dot bigger"></span></button>
+          <button class="button is-dark" type="button" onclick="selectBrush('eraser')"><i class="fas fa-eraser"></i></button>
         </div>
 
         <div class="buttons has-addons is-centered">
