@@ -36,6 +36,32 @@
     #canvas-preview-section canvas {
       margin-right: 0.25rem;
     }
+
+    #main-canvas-container {
+      background-image: linear-gradient(45deg, #808080 25%, transparent 25%),
+      linear-gradient(135deg, #808080 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #808080 75%),
+      linear-gradient(135deg, transparent 75%, #808080 75%);
+      background-size:20px 20px;
+      background-position:0 0, 10px 0, 10px -10px, 0px 10px;
+    }
+
+    .dot {
+      height: 1rem;
+      width: 1rem;
+      background-color: black;
+      border-radius: 50%;
+    }
+
+    .dot.big {
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+
+    .dot.bigger {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
   </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="gif.js"></script>
@@ -50,7 +76,7 @@
 
     function resetCanvas(canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "black";
+      ctx.globalCompositeOperation = "destination-out";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -102,7 +128,7 @@
     }
 
     function initDrawHandlers(canvas) {
-      let ctx;
+      let ctx = canvas.getContext("2d");
 
       canvas.on = on;
 
@@ -110,7 +136,11 @@
         drawState.penDown = true;
         drawState.previousPosition = getPositionForTouchMove(this, e);
 
-        ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
+        if (brushStyle.eraser) {
+          ctx.globalCompositeOperation = "destination-out";
+        }
+
         ctx.strokeStyle = drawState.penColour || "orange";
         ctx.fillStyle = drawState.penColour || "orange"; // for the starting and ending dots
         ctx.lineWidth = brushStyle.lineWidth || 15;
@@ -304,25 +334,6 @@
 
         <div class="buttons has-addons mt-2" id="colour-palette" style="justify-content: center;">
         </div>
-
-        <style type="text/css">
-          .dot {
-            height: 1rem;
-            width: 1rem;
-            background-color: black;
-            border-radius: 50%;
-          }
-
-          .dot.big {
-            height: 1.25rem;
-            width: 1.25rem;
-          }
-
-          .dot.bigger {
-            height: 1.5rem;
-            width: 1.5rem;
-          }
-        </style>
 
         <div class="buttons has-addons is-centered mt-2" id="brush-sizes-control">
           <span>
