@@ -263,6 +263,19 @@
       element.classList.add("hidden");
     }
 
+    function getSizeField() {
+      return find("#canvas-height");
+    }
+
+    function updateCanvasHeight() {
+      getMainCanvas().height = getSizeField().value;
+    }
+
+    function hideCanvasInitControls() {
+      makeInvisible(find("#canvas-init-control"));
+      makeInvisible(find("#page-header"));
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
@@ -283,6 +296,7 @@
 
       resetCanvas(canvas);
       initDrawHandlers(canvas);
+      getSizeField().value = containerWidth;
 
       const colours = ["black", "grey", "white", "red", "orange", "yellow", "green", "deepskyblue", "blue", "purple", "pink", "saddlebrown"];
       find("#colour-palette").innerHTML = colours.map(c =>
@@ -295,6 +309,9 @@
       find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
       find("#upload-image-input").addEventListener("change", e => loadImageToFrame(e.currentTarget.files[0]));
+      getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
+      getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
+      find("#canvas-ok").addEventListener("click", hideCanvasInitControls);
     });
 
     function selectBrush(size) {
@@ -380,7 +397,16 @@
   <!-- <div class="section">
     <div> -->
       <div class="container">
-        <!-- <h1 class="title" id="page-header" onclick="makeInvisible(this)">Draw something!</h1> -->
+        <h1 class="title" id="page-header" onclick="makeInvisible(this)">Draw something!</h1>
+
+        <div class="field has-addons" id="canvas-init-control">
+          <div class="control is-expanded">
+            <input id="canvas-height" class="input is-expanded" placeholder="height in pixels" value="" />
+          </div>
+          <div class="control">
+            <button class="button is-primary" type="button" id="canvas-ok">Size Okay!</button>
+          </div>
+        </div>
 
         <div id="main-canvas-container">
           <canvas id="main-canvas" width="100%" height="100%">
