@@ -186,14 +186,14 @@
     }
 
     function initScratchCanvas() {
-      const mainCanvas = find("#main-canvas");
+      const mainCanvas = getMainCanvas();
       const canvas = document.createElement("canvas");
       canvas.width = mainCanvas.width, canvas.height = mainCanvas.height;
       return canvas;
     }
 
     function addFrame() {
-      const mainCanvas = find("#main-canvas");
+      const mainCanvas = getMainCanvas();
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -277,7 +277,7 @@
       selectBrush("normal")
 
       const containerWidth = find("#main-canvas-container").clientWidth;
-      const canvas = find("#main-canvas");
+      const canvas = getMainCanvas();
 
       canvas.height = containerWidth, canvas.width = containerWidth;
 
@@ -294,6 +294,7 @@
       find("#add-frame").addEventListener("click", e => addFrame());
       find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
+      find("#upload-image-input").addEventListener("change", e => loadImageToFrame(e.currentTarget.files[0]));
     });
 
     function selectBrush(size) {
@@ -312,11 +313,46 @@
     }
 
     function resetAll() {
-      resetCanvas(find("#main-canvas"));
+      resetCanvas(getMainCanvas());
       find("#canvas-preview-section").innerHTML = "";
       makeInvisible(find("#render-section"));
       initFrameData();
       window.scrollTo(0, 0);
+    }
+
+    function getMainCanvas() {
+      return find("#main-canvas");
+    }
+
+    function loadImageToFrame(file) {
+      console.log(file);
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => drawImageOntoCanvas(img);
+    }
+
+    function drawImageOntoCanvas(image) {
+      const canvas = getMainCanvas();
+      const ctx = canvas.getContext("2d");
+
+      ctx.globalCompositeOperation = "source-over";
+
+      const sWidth = image.width, sHeight = image.height;
+      const cWidth = canvas.width, cHeight = canvas.height;
+
+      window.canvas = canvas;
+      window.image = image;
+
+      // The smaller the ratio, the smaller the image will become
+      const ratio = Math.min(cWidth / sWidth, cHeight / sHeight)
+
+      const xStart = (cWidth - sWidth * ratio) / 2;
+      const yStart = (cHeight - sHeight * ratio) / 2;
+
+      ctx.scale(ratio, ratio);
+      ctx.drawImage(image, xStart / ratio, yStart / ratio);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
     }
   </script>
 </head>
@@ -371,6 +407,10 @@
 
         <div class="buttons has-addons is-centered">
           <!-- <button class="button is-primary" id="load-image">Load Image</button> -->
+          <button class="button is-info" id="upload-image" onclick="find('#upload-image-input').click()">
+            <i class="fas fa-file-upload"></i>
+          </button>
+          <input class="hidden" type="file" id="upload-image-input">
           <button class="button is-primary" id="add-frame">Add Frame</button>
           <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
 
