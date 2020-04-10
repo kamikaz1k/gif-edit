@@ -481,10 +481,21 @@
     //   gifFrames({ url: url, ouputType: 'canvas', frames: 'all' }).then(res => window.parserResult = res).catch(e => console.error(e));
     // }
 
+    function insertFFmpeg() {
+      if (window.loadingFFmpeg) return;
+
+      const scriptNode = document.createElement("script");
+      scriptNode.src = "https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"
+      find("head").appendChild(scriptNode)
+      window.loadingFFmpeg = true;
+      console.log("fetching FFmpeg.js");
+    }
+
     async function convertToMp4(sucessCallback) {
-      if (!FFmpeg) {
+      if (!window.FFmpeg) {
         window.fetchRetry = window.fetchRetry || 0;
-        console.log("FFmpeg missing...fetching first!");
+        console.log("FFmpeg missing... waiting...");
+        insertFFmpeg();
         fetchRetry++;
 
         if (fetchRetry > 5) return;
@@ -545,7 +556,7 @@
       setTimeout(() => window.scrollTo(0, 0), 500);
     })
   </script>
-  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script>
+  <!-- <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script> -->
 </head>
 <body>
   <section class="hero is-primary" id="load-controls">
