@@ -481,6 +481,40 @@
     //   gifFrames({ url: url, ouputType: 'canvas', frames: 'all' }).then(res => window.parserResult = res).catch(e => console.error(e));
     // }
 
+    async function convertToMp4(sucessCallback) {
+      if (!FFmpeg) {
+        window.fetchRetry = window.fetchRetry || 0;
+        console.log("FFmpeg missing...fetching first!");
+        fetchRetry++;
+
+        if (fetchRetry > 5) return;
+
+        setTimeout(convertToMp4, 2000);
+        return;
+      }
+
+      const worker = FFmpeg.createWorker();
+      const gif = document.querySelector("#output-gif");
+
+      console.log("starting worker...", worker, " for src ", gif.src);
+
+      await worker.load();
+      await worker.write('GENERATED.gif', gif.src);
+      await worker.transcode('./GENERATED.gif', 'GENERATED.mp4');
+      const { data } = await worker.read('GENERATED.mp4');
+      console.log("MP4 Ready!");
+      window.data = data;
+      await worker.terminate();
+
+      const blob = new Blob([data], {
+        type: "video/mp4"
+      });
+
+      find("#mp4-container video").src = URL.createObjectURL(blob);
+      makeVisible(find("#mp4-container"));
+      sucessCallback && sucessCallback()
+    }
+
     function find(selector) {
       return document.querySelector(selector);
     }
@@ -507,8 +541,11 @@
       getCaptionElement().addEventListener("keydown", () => { setTimeout(refreshFrame) });
 
       find("#upload-gif").onchange = e => { handleGifUpload(e.currentTarget.files); loadGif(); };
+
+      setTimeout(() => window.scrollTo(0, 0), 500);
     })
   </script>
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script>
 </head>
 <body>
   <section class="hero is-primary" id="load-controls">
@@ -634,7 +671,12 @@
         <img crossorigin="Anonymous" id="output-gif" />
       </div>
       <h1 class="title">Save the image directly, you can not hotlink it!</h1>
-      <h2 class="subtitle">Remember to like follow subscribe</h2>
+      <button type="button" class="button is-danger" id="convert-to-mp4" onclick="convertToMp4(() => makeInvisible(this));">Download as MP4</button>
+    </div>
+
+    <div class="container hidden pt-2" id="mp4-container">
+      <h1 class="title">MP4 Ready!</h1>
+      <video controls autoplay loop></video>
     </div>
   </section>
 
