@@ -183,6 +183,8 @@
     function setPenColour(colour) {
       drawState.penColour = colour;
       find("#brush-colour-preview").style.color = colour;
+
+      if (brushStyle.eraser) selectBrush("normal");
     }
 
     function initScratchCanvas() {
