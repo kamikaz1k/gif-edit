@@ -243,10 +243,19 @@
       return document.querySelectorAll("#canvas-preview-section canvas")[window.currentFrameIdx];
     }
 
+    function selectFrameIdx(idx) {
+      console.log(`selectFrameIdx from ${window.currentFrameIdx} to ${idx}`);
+      window.currentFrameIdx = idx;
+      refreshCanvas();
+    }
+
     function initPreview() {
       // create an empty canvas
       const mainCanvas = getMainCanvas();
       const preview = createPreviewCanvas();
+      const frameIdx = window.currentFrameIdx;
+
+      preview.addEventListener("click", e => selectFrameIdx(frameIdx));
 
       // copy image data to frame?
       copyCanvasToPreview(mainCanvas, preview);
