@@ -62,6 +62,10 @@
       height: 1.5rem;
       width: 1.5rem;
     }
+
+    .red-border {
+      border: 1px solid red;
+    }
   </style>
   <script src="https://kit.fontawesome.com/e489190e54.js" crossorigin="anonymous"></script>
   <script src="gif.js"></script>
@@ -187,34 +191,78 @@
       if (brushStyle.eraser) selectBrush("normal");
     }
 
-    function initScratchCanvas() {
-      const mainCanvas = getMainCanvas();
+    function initScratchCanvas(mainCanvas) {
       const canvas = document.createElement("canvas");
       canvas.width = mainCanvas.width, canvas.height = mainCanvas.height;
       return canvas;
     }
 
+    function createPreviewCanvas() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.classList.add("red-border");
+      canvas.width = 50, canvas.height = 50;
+
+      return canvas;
+    }
+
+    function copyCanvasToPreview(mainCanvas, previewCanvas) {
+      const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+      const previewCtx = previewCanvas.getContext("2d");
+
+      previewCtx.scale(previewCanvas.width / mainCanvas.width, previewCanvas.height / mainCanvas.height);
+      previewCtx.drawImage(mainCanvas, 0, 0);
+      previewCtx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
     function addFrame() {
       const mainCanvas = getMainCanvas();
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = 50, canvas.height = 50;
+      const frameIdx = window.frameData.frameCount;
+      const canvas = document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
 
-      let scratchCanvas = initScratchCanvas();
-      let scratchCtx = scratchCanvas.getContext("2d");
-      scratchCtx.putImageData(mainCanvasImageData, 0, 0);
-
-      ctx.scale(canvas.width / mainCanvas.width, canvas.height / mainCanvas.height);
-      ctx.drawImage(scratchCanvas, 0, 0);
+      copyCanvasToPreview(mainCanvas, canvas);
 
       console.log("addFrame", canvas);
-      find("#canvas-preview-section").appendChild(canvas);
+      addPreviewToPreviewSection(canvas);
 
       window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
       window.frameData.frameCount++;
 
       canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      window.currentFrameIdx++;
+      initPreview();
+    }
+
+    function addPreviewToPreviewSection(canvas) {
+      find("#canvas-preview-section").appendChild(canvas);
+    }
+
+    function getPreviewForCurrentActiveFrame() {
+      return document.querySelectorAll("#canvas-preview-section canvas")[window.currentFrameIdx];
+    }
+
+    function initPreview() {
+      // create an empty canvas
+      const mainCanvas = getMainCanvas();
+      const preview = createPreviewCanvas();
+
+      // copy image data to frame?
+      copyCanvasToPreview(mainCanvas, preview);
+
+      addPreviewToPreviewSection(preview);
+
+      // assert that the preview idx is correct!
+      if (preview !== getPreviewForCurrentActiveFrame()) {
+        console.error("something is messed up with the preview idx", preview);
+      }
+
+      // and init the frameData object
+      window.frameData[window.frameData.frameCount] = {
+        imageData: mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height),
+        delay: 1
+      };
     }
 
     function generateGif() {
@@ -276,6 +324,11 @@
     function hideCanvasInitControls() {
       makeInvisible(find("#canvas-init-control"));
       makeInvisible(find("#page-header"));
+      initPreview();
+    }
+
+    function redrawCanvas() {
+      console.log("redrawCanvas");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -314,6 +367,9 @@
       getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
       getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
       find("#canvas-ok").addEventListener("click", hideCanvasInitControls);
+
+      find("#add-onion-overlay").addEventListener("touchstart", () => window.onionModeOn = true || redrawCanvas());
+      find("#add-onion-overlay").addEventListener("touchend", () => window.onionModeOn = false || redrawCanvas());
     });
 
     function selectBrush(size) {
@@ -328,6 +384,7 @@
     }
 
     function initFrameData() {
+      window.currentFrameIdx = 0;
       window.frameData = { frameCount: 0 };
     }
 
@@ -441,7 +498,7 @@
           <input class="hidden" type="file" id="upload-image-input">
           <button class="button is-primary" id="add-frame">Add Frame</button>
           <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
-
+          <button class="button is-dark" id="add-onion-overlay">Onion</button>
         </div>
 
         <!-- <button class="button is-success is-fullwidth" id="export-png">Save PNG</button> -->
