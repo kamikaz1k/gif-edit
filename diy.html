@@ -265,6 +265,18 @@
       };
     }
 
+    function refreshCanvas() {
+      console.log("refreshCanvas");
+      const mainCanvas = getMainCanvas();
+      const canvasData = window.frameData[window.currentFrameIdx].imageData;
+
+      mainCanvas.getContext("2d").putImageData(canvasData, 0, 0);
+    }
+
+    function refreshPreview() {
+
+    }
+
     function generateGif() {
       const gif = new GIF({
         workers: 2,
@@ -327,10 +339,6 @@
       initPreview();
     }
 
-    function redrawCanvas() {
-      console.log("redrawCanvas");
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
@@ -368,8 +376,8 @@
       getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
       find("#canvas-ok").addEventListener("click", hideCanvasInitControls);
 
-      find("#add-onion-overlay").addEventListener("touchstart", () => window.onionModeOn = true || redrawCanvas());
-      find("#add-onion-overlay").addEventListener("touchend", () => window.onionModeOn = false || redrawCanvas());
+      find("#add-onion-overlay").addEventListener("touchstart", () => window.onionModeOn = true || refreshCanvas());
+      find("#add-onion-overlay").addEventListener("touchend", () => window.onionModeOn = false || refreshCanvas());
     });
 
     function selectBrush(size) {
