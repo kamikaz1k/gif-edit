@@ -136,11 +136,14 @@
     }
 
     function initDrawHandlers(canvas) {
+      const mainCanvas = canvas;
       let ctx = canvas.getContext("2d");
+      let previewCanvas
 
       canvas.on = on;
 
       canvas.on("touchstart", function(e) {
+        previewCanvas = getPreviewForCurrentActiveFrame();
         drawState.penDown = true;
         drawState.previousPosition = getPositionForTouchMove(this, e);
 
@@ -160,6 +163,8 @@
 
         ctx.beginPath();
         ctx.moveTo(drawState.previousPosition.x, drawState.previousPosition.y);
+
+        copyCanvasToPreview(mainCanvas, previewCanvas);
       });
 
       canvas.on("touchend", function(e) {
@@ -181,6 +186,8 @@
 
         ctx.lineTo(drawState.previousPosition.x, drawState.previousPosition.y);
         ctx.stroke();
+
+        copyCanvasToPreview(mainCanvas, previewCanvas);
       });
     }
 
@@ -280,7 +287,7 @@
       preview.addEventListener("click", e => selectFrameIdx(frameIdx));
 
       // copy image data to frame?
-      // copyCanvasToPreview(mainCanvas, preview);
+      copyCanvasToPreview(mainCanvas, preview);
 
       addPreviewToPreviewSection(preview);
 
