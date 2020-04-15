@@ -165,6 +165,7 @@
         ctx.moveTo(drawState.previousPosition.x, drawState.previousPosition.y);
 
         copyCanvasToPreview(mainCanvas, previewCanvas);
+        saveCanvasData(mainCanvas, window.currentFrameIdx);
       });
 
       canvas.on("touchend", function(e) {
@@ -174,6 +175,9 @@
 
         drawState.penDown = false;
         drawState.previousPosition = null;
+
+        copyCanvasToPreview(mainCanvas, previewCanvas);
+        saveCanvasData(mainCanvas, window.currentFrameIdx);
       });
 
       canvas.on("touchmove", function(e) {
@@ -188,6 +192,7 @@
         ctx.stroke();
 
         copyCanvasToPreview(mainCanvas, previewCanvas);
+        saveCanvasData(mainCanvas, window.currentFrameIdx);
       });
     }
 
@@ -234,26 +239,45 @@
       return document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
     }
 
-    function addFrame() {
+    // currently only really useful for saving after clear frame button
+    // since data is updated on draw
+    function saveFrame() {
       const mainCanvas = getMainCanvas();
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const frameIdx = window.frameData.frameCount;
       const canvas = getPreviewCanvas(frameIdx);
 
+      // not necessary since we update on draw now
       copyCanvasToPreview(mainCanvas, canvas);
 
-      console.log("addFrame", canvas);
-      addPreviewToPreviewSection(canvas);
-
-      window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
-      window.frameData.frameCount++;
+      window.frameData[frameIdx] = { imageData: mainCanvasImageData, delay: 1 };
 
       canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
 
-      window.currentFrameIdx++;
+    function addFrame() {
+      const mainCanvas = getMainCanvas();
+      // const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+      // const frameIdx = window.frameData.frameCount;
+      // const canvas = getPreviewCanvas(frameIdx);
+
+      // copyCanvasToPreview(mainCanvas, canvas);
+
+      console.log("addFrame");
+      // addPreviewToPreviewSection(canvas);
+
+      // window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
+      window.frameData.frameCount++;
+
+      // canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      window.currentFrameIdx = window.frameData.frameCount;
       initPreview();
+      // Essentially copy current frame into the newest frame...
       saveCanvasData(mainCanvas, window.currentFrameIdx);
       selectFrameIdx(window.currentFrameIdx);
+
+      getPreviewCanvas(window.currentFrameIdx).scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     function addPreviewToPreviewSection(canvas) {
@@ -275,6 +299,7 @@
 
     function getImageData(frameIdx) {
       if (frameIdx < 0) frameIdx = window.frameData.frameCount - 1;
+      else if (frameIdx > window.frameData.frameCount) frameIdx = 0;
       return (window.frameData[frameIdx] || {}).imageData;
     }
 
@@ -478,6 +503,7 @@
       mainCanvas.style.position = "absolute";
 
       addOnionLayerCanvas();
+      saveCanvasData(mainCanvas, window.currentFrameIdx);
     }
 
     function addOnionLayerCanvas() {
@@ -536,6 +562,7 @@
 
       setPenColour("orange");
 
+      find("#save-frame").on("click", e => saveFrame());
       find("#add-frame").addEventListener("click", e => addFrame());
       find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
       find("#generate-gif").addEventListener("click", e => generateGif());
@@ -549,6 +576,8 @@
       // find("#add-onion-overlay").addEventListener("touchmove", () => console.log("touchmove"));
       find("#add-onion-overlay").addEventListener("touchend", (e) => onionEnd(e));
     });
+
+    Element.prototype.on = on;
   </script>
 </head>
 <body>
@@ -593,13 +622,17 @@
         </div>
 
         <div class="buttons has-addons is-centered">
-          <!-- <button class="button is-primary" id="load-image">Load Image</button> -->
+          <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
           <button class="button is-info" id="upload-image" onclick="find('#upload-image-input').click()">
-            <i class="fas fa-file-upload"></i>
+            <i class="fas fa-folder"></i>
           </button>
           <input class="hidden" type="file" id="upload-image-input">
-          <button class="button is-primary" id="add-frame">Add Frame</button>
-          <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
+          <button class="button is-primary" id="save-frame">
+            <i class="fas fa-save"></i>
+          </button>
+          <button class="button is-light" id="add-frame">
+            <i class="fas fa-plus"></i>
+          </button>
           <button class="button is-dark" id="add-onion-overlay">Onion</button>
         </div>
 
