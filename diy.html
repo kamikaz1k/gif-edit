@@ -210,6 +210,9 @@
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const previewCtx = previewCanvas.getContext("2d");
 
+      previewCtx.globalCompositeOperation = "source-over";
+      previewCtx.fillStyle = "white";
+      previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
       previewCtx.scale(previewCanvas.width / mainCanvas.width, previewCanvas.height / mainCanvas.height);
       previewCtx.drawImage(mainCanvas, 0, 0);
       previewCtx.setTransform(1, 0, 0, 1, 0, 0);
