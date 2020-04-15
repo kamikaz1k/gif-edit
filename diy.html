@@ -63,6 +63,10 @@
       width: 1.5rem;
     }
 
+    .current-preview {
+      border: 1px solid black !important;
+    }
+
     .red-border {
       border: 1px solid red;
     }
@@ -201,6 +205,7 @@
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       canvas.classList.add("red-border");
+      canvas.classList.add("current-preview");
       canvas.width = 50, canvas.height = 50;
 
       return canvas;
@@ -218,11 +223,15 @@
       previewCtx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
+    function getPreviewCanvas(frameIdx) {
+      return document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
+    }
+
     function addFrame() {
       const mainCanvas = getMainCanvas();
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const frameIdx = window.frameData.frameCount;
-      const canvas = document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
+      const canvas = getPreviewCanvas(frameIdx);
 
       copyCanvasToPreview(mainCanvas, canvas);
 
@@ -236,6 +245,8 @@
 
       window.currentFrameIdx++;
       initPreview();
+      saveCanvasData(mainCanvas, window.currentFrameIdx);
+      selectFrameIdx(window.currentFrameIdx);
     }
 
     function addPreviewToPreviewSection(canvas) {
@@ -250,6 +261,9 @@
       console.log(`selectFrameIdx from ${window.currentFrameIdx} to ${idx}`);
       window.currentFrameIdx = idx;
       refreshCanvas();
+
+      Array.prototype.forEach.call(document.querySelectorAll(".current-preview"), el => el.classList.remove("current-preview"));
+      getPreviewCanvas(idx).classList.add("current-preview");
     }
 
     function getImageData(frameIdx) {
@@ -266,7 +280,7 @@
       preview.addEventListener("click", e => selectFrameIdx(frameIdx));
 
       // copy image data to frame?
-      copyCanvasToPreview(mainCanvas, preview);
+      // copyCanvasToPreview(mainCanvas, preview);
 
       addPreviewToPreviewSection(preview);
 
@@ -276,7 +290,15 @@
       }
 
       // and init the frameData object
-      window.frameData[window.frameData.frameCount] = {
+      // window.frameData[window.frameData.frameCount] = {
+      //   imageData: mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height),
+      //   delay: 1
+      // };
+    }
+
+    function saveCanvasData(mainCanvas, frameIdx) {
+      // and init the frameData object
+      window.frameData[frameIdx] = {
         imageData: mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height),
         delay: 1
       };
@@ -438,6 +460,8 @@
 
     function readyToDraw() {
       hideCanvasInitControls();
+      initPreview();
+
       const canvasContainer = find("#main-canvas-container");
       const mainCanvas = getMainCanvas();
 
@@ -474,7 +498,6 @@
     function hideCanvasInitControls() {
       makeInvisible(find("#canvas-init-control"));
       makeInvisible(find("#page-header"));
-      initPreview();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
