@@ -326,10 +326,6 @@
       mainCanvas.getContext("2d").putImageData(canvasData, 0, 0);
     }
 
-    function refreshPreview() {
-
-    }
-
     function generateGif() {
       const gif = new GIF({
         workers: 2,
@@ -472,8 +468,16 @@
 
     }
 
+    function revealDrawControls() {
+      makeVisible(find("#brush-sizes-control"));
+      makeVisible(find("#frame-mgmt-control"));
+      makeVisible(find("#colour-palette"));
+      makeVisible(find("#render-controls"));
+    }
+
     function readyToDraw() {
       hideCanvasInitControls();
+      revealDrawControls();
       initPreview();
 
       const canvasContainer = find("#main-canvas-container");
@@ -552,7 +556,7 @@
       getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
       getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
       find("#canvas-ok").addEventListener("click", readyToDraw);
-      readyToDraw();
+      // readyToDraw();
 
       find("#add-onion-overlay").addEventListener("touchstart", (e) => onionStart(e));
       // find("#add-onion-overlay").addEventListener("touchmove", () => console.log("touchmove"));
@@ -586,10 +590,10 @@
 
         <div id="canvas-preview-section" class="mt-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
 
-        <div class="buttons has-addons mt-2" id="colour-palette" style="justify-content: center;">
+        <div class="buttons has-addons mt-2 hidden" id="colour-palette" style="justify-content: center;">
         </div>
 
-        <div class="buttons has-addons is-centered mt-2" id="brush-sizes-control">
+        <div class="buttons has-addons is-centered mt-2 hidden" id="brush-sizes-control">
           <span>
             <button class="button is-white square-edges">
               <!-- <span style="border: none; padding-right: 1rem;"><i class="fas fa-square fa-lg"></i></span> -->
@@ -603,7 +607,7 @@
           <button class="button is-dark" type="button" onclick="selectBrush('eraser')"><i class="fas fa-eraser"></i></button>
         </div>
 
-        <div class="buttons has-addons is-centered">
+        <div class="buttons has-addons is-centered hidden" id="frame-mgmt-control">
           <button class="button is-danger" id="clear-frame"><i class="fas fa-trash"></i></button>
           <button class="button is-info" id="upload-image" onclick="find('#upload-image-input').click()">
             <i class="fas fa-folder"></i>
@@ -619,7 +623,7 @@
         </div>
 
         <!-- <button class="button is-success is-fullwidth" id="export-png">Save PNG</button> -->
-        <div class="buttons">
+        <div class="buttons hidden" id="render-controls">
           <button class="button is-success is-fullwidth" id="generate-gif">Render Gif</button>
           <button class="button is-danger is-fullwidth" onclick="handleResetAll()">
             <span>Reset All</span>
