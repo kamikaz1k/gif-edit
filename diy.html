@@ -247,7 +247,6 @@
       const frameIdx = window.frameData.frameCount;
       const canvas = getPreviewCanvas(frameIdx);
 
-      // not necessary since we update on draw now
       copyCanvasToPreview(mainCanvas, canvas);
 
       window.frameData[frameIdx] = { imageData: mainCanvasImageData, delay: 1 };
@@ -257,19 +256,10 @@
 
     function addFrame() {
       const mainCanvas = getMainCanvas();
-      // const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
-      // const frameIdx = window.frameData.frameCount;
-      // const canvas = getPreviewCanvas(frameIdx);
-
-      // copyCanvasToPreview(mainCanvas, canvas);
 
       console.log("addFrame");
-      // addPreviewToPreviewSection(canvas);
 
-      // window.frameData[window.frameData.frameCount] = { imageData: mainCanvasImageData, delay: 1 };
       window.frameData.frameCount++;
-
-      // canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
       window.currentFrameIdx = window.frameData.frameCount;
       initPreview();
@@ -304,14 +294,12 @@
     }
 
     function initPreview() {
-      // create an empty canvas
       const mainCanvas = getMainCanvas();
       const preview = createPreviewCanvas();
       const frameIdx = window.currentFrameIdx;
 
       preview.addEventListener("click", e => selectFrameIdx(frameIdx));
 
-      // copy image data to frame?
       copyCanvasToPreview(mainCanvas, preview);
 
       addPreviewToPreviewSection(preview);
@@ -320,12 +308,6 @@
       if (preview !== getPreviewForCurrentActiveFrame()) {
         console.error("something is messed up with the preview idx", preview);
       }
-
-      // and init the frameData object
-      // window.frameData[window.frameData.frameCount] = {
-      //   imageData: mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height),
-      //   delay: 1
-      // };
     }
 
     function saveCanvasData(mainCanvas, frameIdx) {
