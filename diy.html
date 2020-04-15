@@ -262,6 +262,7 @@
       window.frameData.frameCount++;
 
       window.currentFrameIdx = window.frameData.frameCount;
+      resetCanvas(mainCanvas);
       initPreview();
       // Essentially copy current frame into the newest frame...
       saveCanvasData(mainCanvas, window.currentFrameIdx);
