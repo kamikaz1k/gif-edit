@@ -249,6 +249,11 @@
       refreshCanvas();
     }
 
+    function getImageData(frameIdx) {
+      if (frameIdx < 0) frameIdx = window.frameData.frameCount - 1;
+      return (window.frameData[frameIdx] || {}).imageData;
+    }
+
     function initPreview() {
       // create an empty canvas
       const mainCanvas = getMainCanvas();
@@ -342,52 +347,32 @@
       getMainCanvas().height = getSizeField().value;
     }
 
-    function hideCanvasInitControls() {
-      makeInvisible(find("#canvas-init-control"));
-      makeInvisible(find("#page-header"));
-      initPreview();
+    function onionStart(event) {
+      event.preventDefault();
+      console.log("onionStart");
+      window.onionModeOn = true;
+
+      const onionNext = find("#onion-next");
+      const onionPrevious = find("#onion-prev");
+
+      const nextImagedata = getImageData(window.currentFrameIdx + 1);
+      nextImagedata && onionNext.getContext("2d").putImageData(nextImagedata, 0, 0);
+
+      const prevImagedata = getImageData(window.currentFrameIdx - 1);
+      prevImagedata && onionPrevious.getContext("2d").putImageData(prevImagedata, 0, 0);
+
+      makeVisible(onionNext);
+      makeVisible(onionPrevious);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      console.log("App Loaded");
+    function onionEnd(event) {
+      event.preventDefault();
+      console.log("onionEnd");
+      window.onionModeOn = false;
 
-      initFrameData();
-      window.penColour = "orange";
-      window.brushStyleOptions = {
-        small: { lineWidth: 8 },
-        normal: { lineWidth: 15 },
-        big: { lineWidth: 25 },
-        eraser: { eraser: true }
-      }
-      selectBrush("normal")
-
-      const containerWidth = find("#main-canvas-container").clientWidth;
-      const canvas = getMainCanvas();
-
-      canvas.height = containerWidth, canvas.width = containerWidth;
-
-      resetCanvas(canvas);
-      initDrawHandlers(canvas);
-      getSizeField().value = containerWidth;
-
-      const colours = ["black", "grey", "white", "red", "orange", "yellow", "green", "deepskyblue", "blue", "purple", "pink", "saddlebrown"];
-      find("#colour-palette").innerHTML = colours.map(c =>
-        `<button class="button square-edges" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;">&nbsp;</button>`
-      ).join("");
-
-      setPenColour("orange");
-
-      find("#add-frame").addEventListener("click", e => addFrame());
-      find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
-      find("#generate-gif").addEventListener("click", e => generateGif());
-      find("#upload-image-input").addEventListener("change", e => loadImageToFrame(e.currentTarget.files[0]));
-      getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
-      getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
-      find("#canvas-ok").addEventListener("click", hideCanvasInitControls);
-
-      find("#add-onion-overlay").addEventListener("touchstart", () => window.onionModeOn = true || refreshCanvas());
-      find("#add-onion-overlay").addEventListener("touchend", () => window.onionModeOn = false || refreshCanvas());
-    });
+      makeInvisible(find("#onion-next"));
+      makeInvisible(find("#onion-prev"));
+    }
 
     function selectBrush(size) {
       const brushStyle = window.brushStyleOptions[size];
@@ -447,26 +432,93 @@
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     }
+
+    function readyToDraw() {
+      hideCanvasInitControls();
+      const canvasContainer = find("#main-canvas-container");
+      const mainCanvas = getMainCanvas();
+
+      canvasContainer.style.height = mainCanvas.height + "px";
+      canvasContainer.style.width = mainCanvas.width + "px";
+
+      mainCanvas.style.position = "absolute";
+
+      addOnionLayerCanvas();
+    }
+
+    function addOnionLayerCanvas() {
+      const mainCanvas = getMainCanvas();
+      const canvasContainer = find("#main-canvas-container");
+      const onionNext = initScratchCanvas(mainCanvas);
+      const onionPrevious = initScratchCanvas(mainCanvas);
+
+      onionNext.id = "onion-next";
+      onionPrevious.id = "onion-prev";
+
+      onionNext.style.position = "absolute";
+      onionPrevious.style.position = "absolute";
+
+      onionNext.style.opacity = 0.5;
+      onionPrevious.style.opacity = 0.5;
+
+      makeInvisible(onionNext);
+      makeInvisible(onionPrevious);
+
+      canvasContainer.appendChild(onionNext);
+      canvasContainer.appendChild(onionPrevious);
+    }
+
+    function hideCanvasInitControls() {
+      makeInvisible(find("#canvas-init-control"));
+      makeInvisible(find("#page-header"));
+      initPreview();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("App Loaded");
+
+      initFrameData();
+      window.penColour = "orange";
+      window.brushStyleOptions = {
+        small: { lineWidth: 8 },
+        normal: { lineWidth: 15 },
+        big: { lineWidth: 25 },
+        eraser: { eraser: true }
+      }
+      selectBrush("normal")
+
+      const containerWidth = find("#main-canvas-container").clientWidth;
+      const canvas = getMainCanvas();
+
+      canvas.height = containerWidth, canvas.width = containerWidth;
+
+      resetCanvas(canvas);
+      initDrawHandlers(canvas);
+      getSizeField().value = containerWidth;
+
+      const colours = ["black", "grey", "white", "red", "orange", "yellow", "green", "deepskyblue", "blue", "purple", "pink", "saddlebrown"];
+      find("#colour-palette").innerHTML = colours.map(c =>
+        `<button class="button square-edges" id="colour-${c}" onclick="setPenColour('${c}')" style="background-color: ${c}; border: none;">&nbsp;</button>`
+      ).join("");
+
+      setPenColour("orange");
+
+      find("#add-frame").addEventListener("click", e => addFrame());
+      find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
+      find("#generate-gif").addEventListener("click", e => generateGif());
+      find("#upload-image-input").addEventListener("change", e => loadImageToFrame(e.currentTarget.files[0]));
+      getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
+      getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
+      find("#canvas-ok").addEventListener("click", readyToDraw);
+      readyToDraw();
+
+      find("#add-onion-overlay").addEventListener("touchstart", (e) => onionStart(e));
+      // find("#add-onion-overlay").addEventListener("touchmove", () => console.log("touchmove"));
+      find("#add-onion-overlay").addEventListener("touchend", (e) => onionEnd(e));
+    });
   </script>
 </head>
 <body>
-
-  <!-- <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="/">
-        <img src="favicon.png" alt="Gif'r" >
-        <span style="font-family: 'Noto Serif', serif; margin-left: 0.5rem;">Draw Something!</span>
-      </a>
-
-      <a class="navbar-item" href="/">
-        Gif Editor
-      </a>
-
-      <a class="navbar-item" href="/diy.html">
-        Gif Sketchpad
-      </a>
-    </div>
-  </nav> -->
 
   <section class="hero">
     <div class="hero-body pt-1">
