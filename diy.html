@@ -235,7 +235,7 @@
       previewCtx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
-    function getPreviewCanvas(frameIdx) {
+    function getPreviewCanvasForIdx(frameIdx) {
       return document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
     }
 
@@ -245,7 +245,7 @@
       const mainCanvas = getMainCanvas();
       const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
       const frameIdx = window.frameData.frameCount;
-      const canvas = getPreviewCanvas(frameIdx);
+      const canvas = getPreviewCanvasForIdx(frameIdx);
 
       copyCanvasToPreview(mainCanvas, canvas);
 
@@ -268,7 +268,7 @@
       saveCanvasData(mainCanvas, window.currentFrameIdx);
       selectFrameIdx(window.currentFrameIdx);
 
-      getPreviewCanvas(window.currentFrameIdx).scrollIntoView({ behavior: "smooth", block: "nearest" });
+      getPreviewCanvasForIdx(window.currentFrameIdx).scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     function addPreviewToPreviewSection(canvas) {
@@ -285,7 +285,7 @@
       refreshCanvas();
 
       Array.prototype.forEach.call(document.querySelectorAll(".current-preview"), el => el.classList.remove("current-preview"));
-      getPreviewCanvas(idx).classList.add("current-preview");
+      getPreviewCanvasForIdx(idx).classList.add("current-preview");
     }
 
     function getImageData(frameIdx) {
@@ -299,7 +299,41 @@
       const preview = createPreviewCanvas();
       const frameIdx = window.currentFrameIdx;
 
+      const previewContainer = find("#canvas-preview-section");
+
       preview.addEventListener("click", e => selectFrameIdx(frameIdx));
+      preview.on("dragstart", e => console.log("dragstart", e));
+      preview.on("touchmove", e => {
+        const position = getPositionForTouchMove(preview, e);
+
+        if (position.x < preview.width * -0.4) {
+          console.log(frameIdx, "swap with left");
+          const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
+
+          for (var i = 1; i < allPreviews.length; i++) {
+            if (allPreviews[i] === preview) break;
+          }
+
+          if (i === allPreviews.length) console.error("could not find it self... i =", i);
+
+          console.log("frameIdx vs found", frameIdx, i);
+          previewContainer.insertBefore(preview, allPreviews[i - 1]);
+        }
+
+        else if (position.x > preview.width * 1.4) {
+          console.log(frameIdx, "swap with right");
+          const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
+
+          for (var i = 0; i < (allPreviews.length - 1); i++) {
+            if (allPreviews[i] === preview) break;
+          }
+
+          if (i === allPreviews.length) console.error("could not find it self... i =", i);
+
+          console.log("frameIdx vs found", frameIdx, i);
+          previewContainer.insertBefore(allPreviews[i + 1], preview);
+        }
+      });
 
       copyCanvasToPreview(mainCanvas, preview);
 
@@ -557,7 +591,7 @@
       getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
       getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
       find("#canvas-ok").addEventListener("click", readyToDraw);
-      // readyToDraw();
+      readyToDraw();
 
       find("#add-onion-overlay").addEventListener("touchstart", (e) => onionStart(e));
       // find("#add-onion-overlay").addEventListener("touchmove", () => console.log("touchmove"));
