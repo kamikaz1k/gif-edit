@@ -395,7 +395,7 @@
         quality: 10
       });
 
-      for (let i = 0; i < window.frameData.frameCount; i++) {
+      for (let i = 0; i < window.frameData.frameCount + 1; i++) {
         if (!window.frameData[i]) continue;
         const currentFrame = window.frameData[i];
         console.log("currentFrame", currentFrame);
