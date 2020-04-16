@@ -294,10 +294,54 @@
       return (window.frameData[frameIdx] || {}).imageData;
     }
 
+    function swapPreviewLeft(previewCanvas, previewContainer) {
+      const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
+
+      for (var i = 0; i < allPreviews.length; i++) {
+        if (allPreviews[i] === previewCanvas) break;
+      }
+
+      if (i === 0) return console.log("nothing to your left...")
+
+      previewContainer.insertBefore(previewCanvas, allPreviews[i - 1]);
+      let temp = window.frameData[i];
+      window.frameData[i] = window.frameData[i - 1];
+      window.frameData[i - 1] = temp;
+    }
+
+    function swapPreviewRight(previewCanvas, previewContainer) {
+      const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
+
+      for (var i = 0; i < (allPreviews.length - 1); i++) {
+        if (allPreviews[i] === previewCanvas) break;
+      }
+
+      if (i === allPreviews.length - 1) return console.log("nothing to your right...");
+
+      previewContainer.insertBefore(allPreviews[i + 1], previewCanvas);
+      let temp = window.frameData[i];
+      window.frameData[i] = window.frameData[i + 1];
+      window.frameData[i + 1] = temp;
+    }
+
+    function updateCurrentFrameIdxAfterSwap() {
+      const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
+
+      for(let i = 0; i < allPreviews.length; i++) {
+        if (allPreviews[i].classList.contains("current-preview")) {
+          console.log("preview frame is currently", i);
+          window.currentFrameIdx = i;
+          return;
+        }
+      }
+    }
+
     function initPreview() {
       const mainCanvas = getMainCanvas();
       const preview = createPreviewCanvas();
       const frameIdx = window.currentFrameIdx;
+
+      preview.setAttribute("originalIdx", frameIdx);
 
       const previewContainer = find("#canvas-preview-section");
 
@@ -308,30 +352,14 @@
 
         if (position.x < preview.width * -0.4) {
           console.log(frameIdx, "swap with left");
-          const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
-
-          for (var i = 1; i < allPreviews.length; i++) {
-            if (allPreviews[i] === preview) break;
-          }
-
-          if (i === allPreviews.length) console.error("could not find it self... i =", i);
-
-          console.log("frameIdx vs found", frameIdx, i);
-          previewContainer.insertBefore(preview, allPreviews[i - 1]);
+          swapPreviewLeft(preview, previewContainer);
+          updateCurrentFrameIdxAfterSwap();
         }
 
         else if (position.x > preview.width * 1.4) {
           console.log(frameIdx, "swap with right");
-          const allPreviews = document.querySelectorAll("#canvas-preview-section canvas");
-
-          for (var i = 0; i < (allPreviews.length - 1); i++) {
-            if (allPreviews[i] === preview) break;
-          }
-
-          if (i === allPreviews.length) console.error("could not find it self... i =", i);
-
-          console.log("frameIdx vs found", frameIdx, i);
-          previewContainer.insertBefore(allPreviews[i + 1], preview);
+          swapPreviewRight(preview, previewContainer);
+          updateCurrentFrameIdxAfterSwap();
         }
       });
 
@@ -591,12 +619,15 @@
       getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
       getSizeField().addEventListener("keyup", () => setTimeout(updateCanvasHeight()));
       find("#canvas-ok").addEventListener("click", readyToDraw);
-      readyToDraw();
+      // readyToDraw();
 
       find("#add-onion-overlay").addEventListener("touchstart", (e) => onionStart(e));
       // find("#add-onion-overlay").addEventListener("touchmove", () => console.log("touchmove"));
       find("#add-onion-overlay").addEventListener("touchend", (e) => onionEnd(e));
     });
+
+    // window.looper = setInterval(() => console.log("previews:", Array.from(
+    //   document.querySelectorAll("#canvas-preview-section canvas")).map(el => el.getAttribute("originalIdx"))), 1000);
 
     Element.prototype.on = on;
   </script>
