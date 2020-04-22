@@ -82,10 +82,22 @@
       return document.querySelector(selector);
     }
 
-    function resetCanvas(canvas) {
+    function clearCanvas(canvas) {
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // currently only really useful for saving after clear frame button
+    // since data is updated on draw
+    function saveFrame(mainCanvas) {
+      const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+      const frameIdx = window.currentFrameIdx;
+      const canvas = getPreviewCanvasForIdx(frameIdx);
+
+      copyCanvasToPreview(mainCanvas, canvas);
+
+      window.frameData[frameIdx] = { imageData: mainCanvasImageData, delay: 1 };
     }
 
     function drawStrokeOntoCanvas(canvas, previousPosition, currentPosition, drawOptions = {}) {
@@ -239,21 +251,6 @@
       return document.querySelectorAll("#canvas-preview-section canvas")[frameIdx];
     }
 
-    // currently only really useful for saving after clear frame button
-    // since data is updated on draw
-    function saveFrame() {
-      const mainCanvas = getMainCanvas();
-      const mainCanvasImageData = mainCanvas.getContext("2d").getImageData(0, 0, mainCanvas.width, mainCanvas.height);
-      const frameIdx = window.frameData.frameCount;
-      const canvas = getPreviewCanvasForIdx(frameIdx);
-
-      copyCanvasToPreview(mainCanvas, canvas);
-
-      window.frameData[frameIdx] = { imageData: mainCanvasImageData, delay: 1 };
-
-      canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-
     function addFrame() {
       const mainCanvas = getMainCanvas();
 
@@ -262,7 +259,7 @@
       window.frameData.frameCount++;
 
       window.currentFrameIdx = window.frameData.frameCount;
-      resetCanvas(mainCanvas);
+      clearCanvas(mainCanvas);
       initPreview();
       // Essentially copy current frame into the newest frame...
       saveCanvasData(mainCanvas, window.currentFrameIdx);
@@ -489,10 +486,15 @@
     }
 
     function resetAll() {
-      resetCanvas(getMainCanvas());
-      find("#canvas-preview-section").innerHTML = "";
-      makeInvisible(find("#render-section"));
       initFrameData();
+
+      clearCanvas(getMainCanvas());
+      saveFrame(getMainCanvas());
+
+      find("#canvas-preview-section").innerHTML = "";
+      initPreview();
+
+      makeInvisible(find("#render-section"));
       window.scrollTo(0, 0);
     }
 
@@ -605,7 +607,7 @@
 
       canvas.height = containerWidth, canvas.width = containerWidth;
 
-      resetCanvas(canvas);
+      clearCanvas(canvas);
       initDrawHandlers(canvas);
       getSizeField().value = containerWidth;
 
@@ -616,9 +618,8 @@
 
       setPenColour("orange");
 
-      find("#save-frame").on("click", e => saveFrame());
       find("#add-frame").addEventListener("click", e => addFrame());
-      find("#clear-frame").addEventListener("click", e => resetCanvas(canvas));
+      find("#clear-frame").addEventListener("click", e => { clearCanvas(canvas); saveFrame(canvas); });
       find("#generate-gif").addEventListener("click", e => generateGif());
       find("#upload-image-input").addEventListener("change", e => loadImageToFrame(e.currentTarget.files[0]));
       getSizeField().addEventListener("change", () => setTimeout(updateCanvasHeight()));
@@ -684,9 +685,6 @@
             <i class="fas fa-folder"></i>
           </button>
           <input class="hidden" type="file" id="upload-image-input">
-          <button class="button is-primary" id="save-frame">
-            <i class="fas fa-save"></i>
-          </button>
           <button class="button is-light" id="add-frame">
             <i class="fas fa-plus"></i>
           </button>
