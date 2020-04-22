@@ -582,6 +582,11 @@
       makeInvisible(find("#page-header"));
     }
 
+    function downloadFrame() {
+      find("#dummy-download-link").href = getMainCanvas().toDataURL("image/png");
+      find("#dummy-download-link").click();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       console.log("App Loaded");
 
@@ -686,6 +691,10 @@
             <i class="fas fa-plus"></i>
           </button>
           <button class="button is-dark" id="add-onion-overlay">Onion</button>
+          <button class="button is-light" id="download-frame" onclick="downloadFrame()">
+            <i class="fas fa-download"></i>
+          </button>
+          <a href="#" class="hidden" id="dummy-download-link" download="image.png"></a>
         </div>
 
         <!-- <button class="button is-success is-fullwidth" id="export-png">Save PNG</button> -->
