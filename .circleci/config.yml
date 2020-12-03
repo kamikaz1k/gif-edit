@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: cypress/base:10.18.1
+      - image: cypress/base:12.18.3
     steps:
       - checkout
       - restore_cache:
