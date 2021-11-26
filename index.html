@@ -410,9 +410,7 @@
       const preview = find("#carousel-container");
       const canvas = rub.get_canvas();
       preview.innerHTML = window.frames.map(_ =>
-        // there's a problem with the auto width calculator within glide
-        // so need to set max-width to make sure each item doesn't take the full screen width
-        `<li class="glide__slide" style="max-width: ${canvas.width}px">` +
+        `<li class="glide__slide">` +
         `<canvas class="preview-frame" width="${canvas.width}" height="${canvas.height}"></canvas>` +
         `</li>`
       ).join("");
@@ -422,7 +420,18 @@
     }
 
     function initGlide() {
-      new Glide(".glide").mount();
+      var glide = new Glide(".glide",
+        {
+          // breakpoints not really working...
+          // breakpoints: {
+          //   400: { perView: 2, peek: { after: 10 } },
+          // },
+          gap: 10,
+          peek: { before: 0, after: 20 },
+          perView: 3,
+        }
+      );
+      glide.mount();
     }
 
     function refreshPreviews() {
@@ -621,7 +630,7 @@
   </section>
 
   <section class="hero">
-    <div class="container py-2">
+    <div class="container">
       <div class="hidden" id="frame-mode-header">
         <button class="button is-fullwidth is-static square-edges" style="background-color: #f14668; color: #fff; border: none;">You are in Frame-By-Frame Edit mode</button>
       </div>
@@ -689,12 +698,12 @@
               </ul>
             </div>
             <!-- controls are interacting poorly with the max-width -->
-            <!-- <div data-glide-el="controls">
-              <button data-glide-dir="<<">start</button>
-              <button data-glide-dir="<">prev</button>
-              <button data-glide-dir=">">next</button>
-              <button data-glide-dir=">>">end</button>
-            </div> -->
+            <div data-glide-el="controls" style="text-align: center;">
+              <button class="button" data-glide-dir="<<">start</button>
+              <button class="button" data-glide-dir="<">prev</button>
+              <button class="button" data-glide-dir=">">next</button>
+              <button class="button" data-glide-dir=">>">end</button>
+            </div>
           </div>
         </div>
       </div>
