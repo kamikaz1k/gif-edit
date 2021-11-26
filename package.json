@@ -4,7 +4,7 @@
   "description": "edit gifs",
   "main": "",
   "scripts": {
-    "start": "http-server -a localhost -p 8000",
+    "start": "http-server -a localhost -p 8020",
     "test": "cypress run"
   },
   "repository": {
