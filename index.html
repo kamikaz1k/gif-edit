@@ -15,12 +15,12 @@
     .handle {
       user-select: none;
     }
-    .p-0 { padding: 0px; }
+    ./*p-0 { padding: 0px; }
     .py-1 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
     .pt-1 { padding-top: 0.5rem; }
     .pt-2 { padding-top: 1rem; }
     .pb-0 { padding-bottom: 0; }
-    .pb-2 { padding-bottom: 1rem; }
+    .pb-2 { padding-bottom: 1rem; }*/
     .text-center { text-align: center; }
 
     .square-edges, #playback-controls .button {
@@ -563,11 +563,32 @@
   <!-- <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script> -->
 </head>
 <body>
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <img src="/favicon.png" alt="Gif Tools" width="32" height="32">&nbsp
+        Gif Tools
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="/">
+        Gif-Edit
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="/diy">
+        DIY Gif
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="https://github.com/kamikaz1k/gif-edit">
+        Github
+      </a>
+    </div>
+  </nav>
+
   <section class="hero is-primary" id="load-controls">
 
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">Let's load a Gif to edit!</h1>
+        <h1 class="title">Let's load a GIF to edit!</h1>
         <div class="field has-addons">
           <div class="control is-expanded is-info">
             <input type="text" class="input" id="gif-url" name="gif-url" value="https://media.giphy.com/media/fTbJkvUNa9Hzy/giphy.gif" placeholder="gif url" style="color: rgb(74, 74, 74);" />
@@ -600,8 +621,7 @@
   </section>
 
   <section class="hero">
-    <h1 class="title has-text-centered pt-2">Git Editor</h1>
-    <div class="container p-0">
+    <div class="container py-2">
       <div class="hidden" id="frame-mode-header">
         <button class="button is-fullwidth is-static square-edges" style="background-color: #f14668; color: #fff; border: none;">You are in Frame-By-Frame Edit mode</button>
       </div>
@@ -609,8 +629,8 @@
     </div>
   </section>
 
-  <section class="section">
-    <div class="container pt-2 pb-0">
+  <section class="section pt-2 pb-0">
+    <div class="container">
       <div class="buttons has-addons hidden" id="playback-controls">
         <button class="button is-dark is-expanded" type="button">Frame:&nbsp;<span id="frame-number">...</span></button>
         <button class="button is-dark" type="button" id="prev-gif"><i class="fas fa-chevron-double-left"></i></button>
