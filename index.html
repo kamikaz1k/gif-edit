@@ -69,6 +69,7 @@
       window.slider = new Dragdealer('size-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
       window.overlayVertical = new Dragdealer('vertical-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
       window.overlayHorizontal = new Dragdealer('horizontal-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayRotation = new Dragdealer('rotation-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
     }
 
     function resetFrames() {
@@ -126,10 +127,12 @@
       const sizeRatio = options.sizeRatio;
       const top = options.top;
       const left = options.left;
+      const rotation = options.rotation;
 
       window.slider.setValue(sizeRatio, 0);
       window.overlayVertical.setValue(top, 0);
       window.overlayHorizontal.setValue(left, 0);
+      window.overlayRotation.setValue(rotation, 0);
     }
 
     function loadNextRenderFrame() {
@@ -179,7 +182,8 @@
         frameDecorationOptions.overlay = {
           sizeRatio:  window.slider.getValue()[0],
           top: window.overlayVertical.getValue()[0],
-          left: window.overlayHorizontal.getValue()[0]
+          left: window.overlayHorizontal.getValue()[0],
+          rotation: window.overlayRotation.getValue()[0]
         }
       }
 
@@ -198,9 +202,10 @@
 
       if (frameDecorationOptions.overlay && window.slider) {
         addOverlayToCanvas(getOverlayImgElement(), canvas, {
-          sizeRatio:  frameDecorationOptions.overlay.sizeRatio,
+          sizeRatio: frameDecorationOptions.overlay.sizeRatio,
           top: frameDecorationOptions.overlay.top,
-          left: frameDecorationOptions.overlay.left
+          left: frameDecorationOptions.overlay.left,
+          rotation: frameDecorationOptions.overlay.rotation,
         });
       }
 
@@ -217,7 +222,8 @@
       addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
-        left: window.overlayHorizontal.getValue()[0]
+        left: window.overlayHorizontal.getValue()[0],
+        rotation: window.overlayRotation.getValue()[0]
       });
 
       addTextToCanvas(getCaption(), rub.get_canvas());
@@ -363,6 +369,10 @@
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
 
+      if (!isNaN(options.rotation)) {
+        // this need to happen before height check because rotation will affect overlay dimentions
+        overlay = rotateImage(overlay, options.rotation);
+      }
 
       // Top Bottom Range should be: -overlay.height * sizeRatio to canvas.height
       // Left Right Range should be: -overlay.width * sizeRatio to canvas.width
@@ -377,6 +387,43 @@
       const y = (options.top || 0) * vertRange;
 
       ctx.drawImage(overlay, x - horizontalOffset, y - vertOffset, overlay.width * sizeRatio, overlay.height * sizeRatio);
+
+    }
+
+    function rotateImage(imgElement, rotation) {
+      if (rotation === 0.5) return imgElement;
+
+      const angle = (rotation - 0.5) * 360; // normalize 0 - 1.0 to -0.5 - 0.5
+      const radianAngle = angle * Math.PI / 180;
+      const overlayCanvas = document.createElement('canvas');
+
+      // let overlayCanvasHeight, overlayCanvasWidth;
+
+      // let adjustedRadianAngle = radianAngle;
+      if (Math.abs(angle) == 90) {
+        overlayCanvas.height = imgElement.width;
+        overlayCanvas.width = imgElement.height;
+
+      } else if (Math.abs(angle) < 90) {
+        overlayCanvas.width = imgElement.width * Math.cos(Math.abs(radianAngle)) + imgElement.height * Math.sin(Math.abs(radianAngle));
+        overlayCanvas.height = imgElement.width * Math.sin(Math.abs(radianAngle)) + imgElement.height * Math.cos(Math.abs(radianAngle));
+
+      } else {
+        overlayCanvas.width = imgElement.width * Math.cos(Math.abs(radianAngle) - Math.PI / 2) + imgElement.height * Math.sin(Math.abs(radianAngle) - Math.PI / 2);
+        overlayCanvas.height = imgElement.width * Math.sin(Math.abs(radianAngle) - Math.PI / 2) + imgElement.height * Math.cos(Math.abs(radianAngle) - Math.PI / 2);
+      }
+
+      const overlayCtx = overlayCanvas.getContext("2d");
+
+      // overlayCtx.fillStyle = 'green';
+      // overlayCtx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+      overlayCtx.translate(overlayCanvas.width / 2, overlayCanvas.height / 2);
+      overlayCtx.rotate(radianAngle);
+
+      overlayCtx.drawImage(imgElement, -imgElement.width / 2, -imgElement.height / 2);
+
+      return overlayCanvas;
     }
 
     function getOverlaySize() {
@@ -572,6 +619,7 @@
   <!-- <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script> -->
 </head>
 <body>
+  <div id="okok" style="text-align: center;"><canvas /></div>
   <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
@@ -677,15 +725,19 @@
 
       <div class="pb-2 overlay-controls hidden">
         <div id="size-slider" class="dragdealer">
-          <div class="handle bar is-danger">size</div>
+          <div class="handle bar is-danger">Size</div>
         </div>
 
         <div id="vertical-slider" class="dragdealer">
-          <div class="handle bar is-danger">up/down</div>
+          <div class="handle bar is-danger">Up/Down</div>
         </div>
 
         <div id="horizontal-slider" class="dragdealer">
-          <div class="handle bar is-danger">left/right</div>
+          <div class="handle bar is-danger">Left/Right</div>
+        </div>
+
+        <div id="rotation-slider" class="dragdealer">
+          <div class="handle bar is-danger">< Rotate ></div>
         </div>
       </div>
 
