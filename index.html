@@ -325,7 +325,7 @@
         renderedImg.crossOrigin = "Anonymous";
 
         makeVisible(document.querySelector(".render-section"));
-        setTimeout(() => renderedImg.scrollIntoView(), 500);
+        setTimeout(() => find('#rendered-section').scrollIntoView({ behavior: "smooth" }), 500);
       });
 
       console.log("rendering...");
@@ -397,21 +397,13 @@
       const radianAngle = angle * Math.PI / 180;
       const overlayCanvas = document.createElement('canvas');
 
-      // let overlayCanvasHeight, overlayCanvasWidth;
-
-      // let adjustedRadianAngle = radianAngle;
-      if (Math.abs(angle) == 90) {
-        overlayCanvas.height = imgElement.width;
-        overlayCanvas.width = imgElement.height;
-
-      } else if (Math.abs(angle) < 90) {
-        overlayCanvas.width = imgElement.width * Math.cos(Math.abs(radianAngle)) + imgElement.height * Math.sin(Math.abs(radianAngle));
-        overlayCanvas.height = imgElement.width * Math.sin(Math.abs(radianAngle)) + imgElement.height * Math.cos(Math.abs(radianAngle));
-
-      } else {
-        overlayCanvas.width = imgElement.width * Math.cos(Math.abs(radianAngle) - Math.PI / 2) + imgElement.height * Math.sin(Math.abs(radianAngle) - Math.PI / 2);
-        overlayCanvas.height = imgElement.width * Math.sin(Math.abs(radianAngle) - Math.PI / 2) + imgElement.height * Math.cos(Math.abs(radianAngle) - Math.PI / 2);
+      let adjustedRadianAngle = Math.abs(radianAngle);
+      if (Math.abs(angle) > 90) {
+        radianAngle -= Math.PI / 2;
       }
+
+      overlayCanvas.width = imgElement.width * Math.cos(adjustedRadianAngle) + imgElement.height * Math.sin(adjustedRadianAngle);
+      overlayCanvas.height = imgElement.width * Math.sin(adjustedRadianAngle) + imgElement.height * Math.cos(adjustedRadianAngle);
 
       const overlayCtx = overlayCanvas.getContext("2d");
 
@@ -619,7 +611,6 @@
   <!-- <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.7.0/dist/ffmpeg.min.js"></script> -->
 </head>
 <body>
-  <div id="okok" style="text-align: center;"><canvas /></div>
   <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
@@ -770,7 +761,7 @@
     <img crossorigin="Anonymous" class="hidden" id="overlay" />
   </div>
 
-  <section class="section">
+  <section class="section has-text-centered" id="rendered-section">
     <div class="container p-0 render-section hidden">
       <h1 class="title">Here's your gif hot off the press</h1>
       <div id="generated">
