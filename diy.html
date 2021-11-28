@@ -73,7 +73,8 @@
   </style>
   <script src="fontawesome.5.15.1.all.min.js"></script>
   <script src="gif.js"></script>
-  <script src="gif.worker.js"></script>
+  <!-- <script src="gif.worker.js"></script> -->
+  <script type="text/javascript">window.Worker && new Worker('gif.worker.js')</script>
   <script type="text/javascript">
 
     window.drawState = {};
