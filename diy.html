@@ -130,7 +130,7 @@
         console.log(e, drawState);
       });
 
-      canvas.on("touchend", e => {
+      canvas.on("touchend", function(e) {
         drawState.penDown = false;
         drawState.previousPosition = null;
         console.log(e, drawState);
@@ -155,10 +155,36 @@
 
       canvas.on = on;
 
-      canvas.on("touchstart", function(e) {
+      canvas.on("touchstart", handleTouchStart);
+      canvas.on("mousedown", handleTouchStart);
+
+      canvas.on("touchmove", handleTouchMove);
+      window.document.addEventListener("mousemove", handleTouchMove);
+
+      canvas.on("touchend", handleTouchEnd)
+      window.document.addEventListener("mouseup", function(e) {
+        if (drawState.penDown) {
+          handleTouchEnd(e);
+        }
+      });
+
+      function getPositionForCursor(element, e) {
+        if (['mousedown','mousemove','mouseup'].includes(e.type)) {
+          const box = mainCanvas.getBoundingClientRect();
+
+          return {
+            x: e.x - box.left,
+            y: e.y - box.top
+          };
+        }
+      }
+
+      function handleTouchStart(e) {
         previewCanvas = getPreviewForCurrentActiveFrame();
         drawState.penDown = true;
-        drawState.previousPosition = getPositionForTouchMove(this, e);
+
+        const currentPosition = getPositionForCursor(this, e) || getPositionForTouchMove(this, e);
+        drawState.previousPosition = currentPosition;
 
         ctx.globalCompositeOperation = "source-over";
         if (brushStyle.eraser) {
@@ -171,17 +197,17 @@
         ctx.lineJoin = "round";
 
         ctx.beginPath();
-        ctx.arc(drawState.previousPosition.x, drawState.previousPosition.y, ctx.lineWidth / 2, 0, 2 * Math.PI);
+        ctx.arc(currentPosition.x, currentPosition.y, ctx.lineWidth / 2, 0, 2 * Math.PI);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.moveTo(drawState.previousPosition.x, drawState.previousPosition.y);
+        ctx.moveTo(currentPosition.x, currentPosition.y);
 
         copyCanvasToPreview(mainCanvas, previewCanvas);
         saveCanvasData(mainCanvas, window.currentFrameIdx);
-      });
+      };
 
-      canvas.on("touchend", function(e) {
+      function handleTouchEnd(e) {
         ctx.beginPath();
         ctx.arc(drawState.previousPosition.x, drawState.previousPosition.y, ctx.lineWidth / 2, 0, 2 * Math.PI);
         ctx.fill();
@@ -191,22 +217,22 @@
 
         copyCanvasToPreview(mainCanvas, previewCanvas);
         saveCanvasData(mainCanvas, window.currentFrameIdx);
-      });
+      };
 
-      canvas.on("touchmove", function(e) {
-        e.preventDefault();
-
+      function handleTouchMove(e) {
         if (!drawState.penDown) return;
 
-        const currentPosition = getPositionForTouchMove(this, e);
+        e.preventDefault(); // this stops the canvas/page from being moved around
+
+        const currentPosition = getPositionForCursor(this, e) || getPositionForTouchMove(this, e);
         drawState.previousPosition = currentPosition;
 
-        ctx.lineTo(drawState.previousPosition.x, drawState.previousPosition.y);
+        ctx.lineTo(currentPosition.x, currentPosition.y);
         ctx.stroke();
 
         copyCanvasToPreview(mainCanvas, previewCanvas);
         saveCanvasData(mainCanvas, window.currentFrameIdx);
-      });
+      };
     }
 
     function on(eventName, handler) {
