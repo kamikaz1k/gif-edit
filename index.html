@@ -71,6 +71,7 @@
       window.overlayVertical = new Dragdealer('vertical-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
       window.overlayHorizontal = new Dragdealer('horizontal-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
       window.overlayRotation = new Dragdealer('rotation-slider', { x: 0.5, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
+      window.overlayFlipHorizontal = new Dragdealer('horizontal-flipper-slider', { x: 0, steps: 2, animationCallback: (x, y) => !isPreviewRunning() && refreshFrame() });
     }
 
     function resetFrames() {
@@ -129,11 +130,13 @@
       const top = options.top;
       const left = options.left;
       const rotation = options.rotation;
+      const flipHorizontal = options.flipHorizontal;
 
       window.slider.setValue(sizeRatio, 0);
       window.overlayVertical.setValue(top, 0);
       window.overlayHorizontal.setValue(left, 0);
       window.overlayRotation.setValue(rotation, 0);
+      window.overlayFlipHorizontal.setValue(flipHorizontal, 0);
     }
 
     function loadNextRenderFrame() {
@@ -184,7 +187,8 @@
           sizeRatio:  window.slider.getValue()[0],
           top: window.overlayVertical.getValue()[0],
           left: window.overlayHorizontal.getValue()[0],
-          rotation: window.overlayRotation.getValue()[0]
+          rotation: window.overlayRotation.getValue()[0],
+          flipHorizontal: window.overlayFlipHorizontal.getValue()[0]
         }
       }
 
@@ -207,6 +211,7 @@
           top: frameDecorationOptions.overlay.top,
           left: frameDecorationOptions.overlay.left,
           rotation: frameDecorationOptions.overlay.rotation,
+          flipHorizontal: frameDecorationOptions.overlay.flipHorizontal,
         });
       }
 
@@ -226,7 +231,8 @@
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
         left: window.overlayHorizontal.getValue()[0],
-        rotation: window.overlayRotation.getValue()[0]
+        rotation: window.overlayRotation.getValue()[0],
+        flipHorizontal: window.overlayFlipHorizontal.getValue()[0]
       });
 
       addTextToCanvas(getCaption(), canvas);
@@ -377,6 +383,10 @@
         overlay = rotateImage(overlay, options.rotation);
       }
 
+      if (options.flipHorizontal) {
+        overlay = flipImage(overlay);
+      }
+
       // Top Bottom Range should be: -overlay.height * sizeRatio to canvas.height
       // Left Right Range should be: -overlay.width * sizeRatio to canvas.width
       const vertOffset = overlay.height * sizeRatio;
@@ -391,6 +401,19 @@
 
       ctx.drawImage(overlay, x - horizontalOffset, y - vertOffset, overlay.width * sizeRatio, overlay.height * sizeRatio);
 
+    }
+
+    function flipImage(imgElement) {
+      const overlayCanvas = document.createElement('canvas');
+      overlayCanvas.width = imgElement.width;
+      overlayCanvas.height = imgElement.height;
+
+      const overlayCtx = overlayCanvas.getContext("2d");
+      overlayCtx.translate(imgElement.width, 0);
+      overlayCtx.scale(-1, 1);
+      overlayCtx.drawImage(imgElement, 0, 0);
+
+      return overlayCanvas;
     }
 
     function calculateRotation(sliderRotationValue) {
@@ -747,6 +770,10 @@
 
         <div id="rotation-slider" class="dragdealer">
           <div class="handle bar is-danger">< Rotate ></div>
+        </div>
+
+        <div id="horizontal-flipper-slider" class="dragdealer">
+          <div class="handle bar is-danger">Flip Image</div>
         </div>
       </div>
 
