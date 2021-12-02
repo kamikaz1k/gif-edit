@@ -393,20 +393,35 @@
 
     }
 
+    function calculateRotation(sliderRotationValue) {
+      const angle = (sliderRotationValue - 0.5) * 360; // normalize 0 - 1.0 to -0.5 - 0.5
+      let radianAngle = angle * Math.PI / 180;
+
+      return radianAngle;
+    }
+
+    function calculateRotatedImageSize(oWidth, oHeight, radianAngle) {
+      let adjustedRadianAngle = Math.abs(radianAngle);
+      if (adjustedRadianAngle > Math.PI / 2) {
+        adjustedRadianAngle = Math.PI - adjustedRadianAngle;
+      }
+
+      return {
+        adjustedRadianAngle: adjustedRadianAngle,
+        width: oWidth * Math.cos(adjustedRadianAngle) + oHeight * Math.sin(adjustedRadianAngle),
+        height: oWidth * Math.sin(adjustedRadianAngle) + oHeight * Math.cos(adjustedRadianAngle)
+      }
+    }
+
     function rotateImage(imgElement, sliderRotationValue) {
       if (sliderRotationValue === 0.5) return imgElement;
 
       const overlayCanvas = document.createElement('canvas');
-      const angle = (sliderRotationValue - 0.5) * 360; // normalize 0 - 1.0 to -0.5 - 0.5
-      let radianAngle = angle * Math.PI / 180;
+      const radianAngle = calculateRotation(sliderRotationValue);
 
-      let adjustedRadianAngle = Math.abs(radianAngle);
-      if (Math.abs(angle) > 90) {
-        adjustedRadianAngle -= Math.PI / 2;
-      }
-
-      overlayCanvas.width = imgElement.width * Math.cos(adjustedRadianAngle) + imgElement.height * Math.sin(adjustedRadianAngle);
-      overlayCanvas.height = imgElement.width * Math.sin(adjustedRadianAngle) + imgElement.height * Math.cos(adjustedRadianAngle);
+      const { width, height } = calculateRotatedImageSize(imgElement.width, imgElement.height, radianAngle);
+      overlayCanvas.width = width;
+      overlayCanvas.height = height;
 
       const overlayCtx = overlayCanvas.getContext("2d");
 
