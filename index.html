@@ -217,17 +217,19 @@
     }
 
     function applyAllMode() {
+      const canvas = rub.get_canvas();
+
       window.overlayVertical &&
       window.overlayHorizontal &&
       window.slider &&
-      addOverlayToCanvas(getOverlayImgElement(), rub.get_canvas(), {
+      addOverlayToCanvas(getOverlayImgElement(), canvas, {
         sizeRatio:  window.slider.getValue()[0],
         top: window.overlayVertical.getValue()[0],
         left: window.overlayHorizontal.getValue()[0],
         rotation: window.overlayRotation.getValue()[0]
       });
 
-      addTextToCanvas(getCaption(), rub.get_canvas());
+      addTextToCanvas(getCaption(), canvas);
     }
 
     function getCaption() {
@@ -391,16 +393,16 @@
 
     }
 
-    function rotateImage(imgElement, rotation) {
-      if (rotation === 0.5) return imgElement;
+    function rotateImage(imgElement, sliderRotationValue) {
+      if (sliderRotationValue === 0.5) return imgElement;
 
-      const angle = (rotation - 0.5) * 360; // normalize 0 - 1.0 to -0.5 - 0.5
-      const radianAngle = angle * Math.PI / 180;
       const overlayCanvas = document.createElement('canvas');
+      const angle = (sliderRotationValue - 0.5) * 360; // normalize 0 - 1.0 to -0.5 - 0.5
+      let radianAngle = angle * Math.PI / 180;
 
       let adjustedRadianAngle = Math.abs(radianAngle);
       if (Math.abs(angle) > 90) {
-        radianAngle -= Math.PI / 2;
+        adjustedRadianAngle -= Math.PI / 2;
       }
 
       overlayCanvas.width = imgElement.width * Math.cos(adjustedRadianAngle) + imgElement.height * Math.sin(adjustedRadianAngle);
