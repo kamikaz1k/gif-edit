@@ -3,6 +3,20 @@ window.utils = {
 
   findAll: (selector) => document.querySelectorAll(selector),
 
+  hide: function hide(elementOrSelector) {
+    if (!elementOrSelector.nodeType) {
+      elementOrSelector = this.find(elementOrSelector);
+    }
+    elementOrSelector.classList.add("hidden");
+  },
+
+  reveal: function reveal(elementOrSelector) {
+    if (!elementOrSelector.nodeType) {
+      elementOrSelector = this.find(elementOrSelector);
+    }
+    elementOrSelector.classList.remove("hidden");
+  },
+
   addSlider: ({ containerDiv, sliderId, label, onUpdate, startingValue = 0.5 }) => {
     const div = document.createElement('div');
 
