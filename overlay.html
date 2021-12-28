@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gif'r</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <link rel="stylesheet" href="bulma.min.css">
+  <link rel="stylesheet" href="dragdealer.css">
+  <script src="dragdealer.js"></script>
+  <script src="fontawesome.5.15.1.all.min.js"></script>
+  <!-- <script src="sketch-pad.js"></script> -->
+  <script src="utils.js"></script>
+  <style>
+    #main-canvas-container {
+      background-image: linear-gradient(45deg, #808080 25%, transparent 25%),
+      linear-gradient(135deg, #808080 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #808080 75%),
+      linear-gradient(135deg, transparent 75%, #808080 75%);
+      background-size:20px 20px;
+      background-position:0 0, 10px 0, 10px -10px, 0px 10px;
+    }
+
+    #canvas-layer-section canvas {
+      margin-right: 0.25rem;
+    }
+
+    .current-preview {
+      border: 1px solid black !important;
+    }
+
+    .red-border {
+      border: 1px solid red;
+    }
+
+    .slider-button {
+      background-color: #f14668;
+      color: #fff;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+  <script type="text/javascript">
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const containerWidth = utils.find("#main-canvas-container").clientWidth;
+      const canvas = getMainCanvas();
+
+      canvas.height = containerWidth, canvas.width = containerWidth;
+
+      // window.sk = new SketchPad(canvas);
+
+      const sliderContainer = utils.find('#layer-controls');
+      window.OverlayState.sliders.horizontalPoz = utils.addSlider({
+        containerDiv: sliderContainer,
+        sliderId: 'horizontalPoz',
+        label: 'Left/Right',
+        onUpdate: x => updateLayerData({ x: x }) || rasterize()
+      });
+      window.OverlayState.sliders.verticalPoz = utils.addSlider({
+        containerDiv: sliderContainer,
+        sliderId: 'verticalPoz',
+        label: 'Up/Down',
+        onUpdate: x => updateLayerData({ y: x }) || rasterize()
+      });
+      window.OverlayState.sliders.size = utils.addSlider({
+        containerDiv: sliderContainer,
+        sliderId: 'size',
+        label: 'Size',
+        onUpdate: x => updateLayerData({ size: x }) || rasterize()
+      });
+      window.OverlayState.sliders.rotation = utils.addSlider({
+        containerDiv: sliderContainer,
+        sliderId: 'rotation',
+        label: 'Rotation',
+        onUpdate: x => updateLayerData({ rotation: x }) || rasterize()
+      });
+
+      // sk.onUpdate(() => updateCurrentLayer());
+
+      // selectLayerId(initNewLayer());
+    });
+
+    window.OverlayState = {
+      layers: [],
+      _layerIdGenerator: 0,
+      currentLayerId: null,
+      sliders: {},
+    };
+
+    function updateLayerData(update) {
+      const { currentLayerId } = window.OverlayState;
+      if (!currentLayerId) {
+        // console.error('[ERROR] currentLayerId not set ', currentLayerId);
+        return;
+      }
+
+      const layerData = getLayerData(currentLayerId);
+
+      Object.keys(update).forEach(key => layerData[key] = update[key]);
+      // console.log('updateLayerData', layerData);
+    }
+
+    function createLayerData({ x = 0.5, y = 0.5, size = 0.5, rotation = 0.5, imageData = null } = {}) {
+      const layerData = {
+        x,
+        y,
+        size,
+        rotation,
+        imageData,
+      }
+
+      return layerData;
+    }
+
+    function getMainCanvas() { return utils.find('#main-canvas'); }
+
+    function createLayerCanvas() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.classList.add("red-border");
+      // canvas.classList.add("current-preview");
+      canvas.width = 50, canvas.height = 50;
+
+      return canvas;
+    }
+
+    function swapLayerLeft(canvas, container) {
+      const allLayers = utils.findAll("#canvas-layer-section canvas");
+
+      for (var i = 0; i < allLayers.length; i++) {
+        if (allLayers[i] === canvas) break;
+      }
+
+      if (i === 0) return console.log("nothing to your left...")
+
+      container.insertBefore(canvas, allLayers[i - 1]);
+
+      // Update OverlayState
+      let temp = window.OverlayState.layers[i];
+      window.OverlayState.layers[i] = window.OverlayState.layers[i - 1];
+      window.OverlayState.layers[i - 1] = temp;
+    }
+
+    function swapLayerRight(canvas, container) {
+      const allLayers = utils.findAll("#canvas-layer-section canvas");
+
+      for (var i = 0; i < (allLayers.length - 1); i++) {
+        if (allLayers[i] === canvas) break;
+      }
+
+      console.log(allLayers.length, allLayers);
+      if (i === allLayers.length - 1) return console.log("nothing to your right...");
+
+      container.insertBefore(allLayers[i + 1], canvas);
+
+      // Update OverlayState
+      let temp = window.OverlayState.layers[i];
+      window.OverlayState.layers[i] = window.OverlayState.layers[i + 1];
+      window.OverlayState.layers[i + 1] = temp;
+    }
+
+    function selectLayerId(layerId) {
+      console.log('selectLayerId', layerId);
+      const id = `layer-${layerId}`;
+
+      const allLayers = utils.findAll("#canvas-layer-section canvas");
+
+      Array.prototype.forEach.call(allLayers, el => {
+        if (el.id == id) {
+          el.classList.add("current-preview");
+        } else {
+          el.classList.remove("current-preview");
+        }
+      });
+
+      window.OverlayState.currentLayerId = layerId;
+    }
+
+    function initNewLayer() {
+      const mainCanvas = getMainCanvas();
+      const layer = createLayerCanvas();
+      const layerId = ++window.OverlayState._layerIdGenerator;
+
+      layer.setAttribute("id", "layer-" + layerId);
+
+      const layerContainer = utils.find("#canvas-layer-section");
+
+      layer.addEventListener("click", e => selectLayerId(layerId));
+
+      layer.addEventListener("touchmove", e => {
+        const position = utils.getPositionForTouchMove(layer, e);
+
+        if (position.x < layer.width * -0.4) {
+          // console.log(layerId, "swap with left");
+          swapLayerLeft(layer, layerContainer);
+        }
+
+        else if (position.x > layer.width * 1.4) {
+          // console.log(layerId, "swap with right");
+          swapLayerRight(layer, layerContainer);
+        }
+
+        rasterize();
+      });
+
+      layerContainer.appendChild(layer);
+      window.OverlayState.layers.push({ layerId, ...createLayerData() });
+
+      if (!window.OverlayState.currentLayerId) {
+        selectLayerId(layerId);
+      }
+
+      return layerId;
+    }
+
+    function getLayerData(layerId) {
+      return window.OverlayState.layers.find(l => l.layerId === layerId);
+    }
+
+    function addNewLayer() {
+      utils.find('#upload-new').onchange = e => {
+        const file = e.currentTarget.files[0];
+        const blobPath = URL.createObjectURL(file);
+
+        const img = document.createElement('img');
+        img.src = blobPath;
+
+        img.onload = () => {
+          const newLayerId = initNewLayer();
+          const layer = getLayerData(newLayerId);
+
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width, canvas.height = img.height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          layer.imageData = canvas;
+
+          selectLayerId(newLayerId);
+          updatePreview(newLayerId);
+          rasterize();
+        }
+
+      }
+
+      utils.find('#upload-new').click();
+    }
+
+    function copyDataToPreview(originalImage, previewCanvas) {
+      imageUtils.resizeAndOffsetImage(originalImage, previewCanvas, { sizeRatio: 1, top: 0.5, left: 0.5 });
+    }
+
+    function updatePreview(layerId) {
+      const layerData = getLayerData(layerId);
+
+      const preview = utils.find(`#layer-${layerId}`);
+
+      copyDataToPreview(layerData.imageData, preview);
+    }
+
+    function applyLayerDataToCanvas(canvas, layer) {
+      // because rotation changes height/width it messes with position
+      // you should rotate afterwards.
+      // break down resizeAndOffset into resize, and offset
+      // resize first, then rotate, then offset
+      const rotatedImage = imageUtils.rotateImage(layer.imageData, layer.rotation);
+
+      // const canvasCopy = document.createElement('canvas');
+      // canvasCopy.width = canvas.width;
+      // canvasCopy.height = canvas.height;
+      const canvasCopy = canvas;
+
+      const resizedImage = imageUtils.resizeAndOffsetImage(rotatedImage, canvasCopy, {
+        sizeRatio: layer.size,
+        top: layer.y,
+        left: layer.x,
+      });
+
+      const ctx = canvas.getContext("2d");
+      const resizedCtx = resizedImage.getContext("2d");
+
+      ctx.putImageData(resizedCtx.getImageData(0, 0, resizedImage.width, resizedImage.height), 0, 0);
+    }
+
+    function resetCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function rasterize() {
+      console.log('rasterize');
+      const canvas = getMainCanvas();
+
+      resetCanvas(canvas);
+
+      window.OverlayState.layers.forEach(layer => {
+        applyLayerDataToCanvas(canvas, layer);
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <img src="favicon.png" alt="Gif Tools" width="32" height="32">&nbsp
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="/">
+        Gif-Edit
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="diy">
+        DIY Gif
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="#">
+        Overlay
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="https://github.com/kamikaz1k/gif-edit">
+        Github
+      </a>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      <div id="main-canvas-container">
+        <canvas id="main-canvas" width="100%" height="100%">
+      </div>
+    </div>
+
+    <div class="mt-2 container">
+      <h2 class="subtitle">Layer Previews</h2>
+      <div id="canvas-layer-section" class="mt-2" style="overflow-x: auto; display: flex; min-height: 50px;"></div>
+      <div class="py-3">
+        <button class="button is-primary" onClick="addNewLayer()">Add New Layer</button>
+        <input type="file" class="hidden" id="upload-new" />
+      </div>
+    </div>
+
+    <div id="layer-controls" class="mt-2 container"></div>
+  </section>
+
+</body>
+</html>
+
+
+
+
+
+Canvas
+- get current layer
+- update current layer
+- rasterize
+
+
+Rasterized Canvas
+Working Canvas
+LayerData[]
+
+<!-- RasterizeCanvas update canvas data -->
+
+
+
+
+
+
+
+
+
+
