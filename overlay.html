@@ -301,6 +301,14 @@
         applyLayerDataToCanvas(canvas, layer);
       });
     }
+
+    function downloadImage() {
+      const canvas = getMainCanvas();
+      const downloadLink = utils.find('#dummy-download-link');
+
+      downloadLink.href = canvas.toDataURL("image/png");
+      downloadLink.click();
+    }
   </script>
 </head>
 <body>
@@ -341,6 +349,9 @@
       <div class="py-3">
         <button class="button is-primary" onClick="addNewLayer()">Add New Layer</button>
         <input type="file" class="hidden" id="upload-new" />
+
+        <button class="button is-secondary" onClick="downloadImage()">Download</button>
+        <a href="#" class="hidden" id="dummy-download-link" download="image.png"></a>
       </div>
     </div>
 
@@ -349,29 +360,3 @@
 
 </body>
 </html>
-
-
-
-
-
-Canvas
-- get current layer
-- update current layer
-- rasterize
-
-
-Rasterized Canvas
-Working Canvas
-LayerData[]
-
-<!-- RasterizeCanvas update canvas data -->
-
-
-
-
-
-
-
-
-
-
