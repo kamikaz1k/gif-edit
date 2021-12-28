@@ -372,8 +372,6 @@
 
     function addOverlayToCanvas(overlay, canvas, options) {
       options = options || {};
-      const optionSizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
-      const sizeRatio = optionSizeRatio * 1.5; // Allow boosting size by 50%
 
       const ctx = canvas.getContext("2d");
       ctx.globalCompositeOperation = "source-over"; // layer on top
@@ -386,6 +384,9 @@
       if (options.flipHorizontal) {
         overlay = flipImage(overlay);
       }
+
+      const optionSizeRatio = options.sizeRatio === undefined ? 1 : options.sizeRatio;
+      const sizeRatio = optionSizeRatio * 1.5; // Allow boosting size by 50%
 
       // Top Bottom Range should be: -overlay.height * sizeRatio to canvas.height
       // Left Right Range should be: -overlay.width * sizeRatio to canvas.width
@@ -521,7 +522,7 @@
     }
 
     function refreshPreviewForFrame(frameIdx, canvas) {
-      canvas =  canvas || document.querySelectorAll(".preview-frame")[frameIdx];
+      canvas = canvas || document.querySelectorAll(".preview-frame")[frameIdx];
       addOriginalFrametoCanvas(getImageDataForFrameIdx(frameIdx), canvas);
       applyFrameDecorationsToCanvas(frameIdx, canvas);
       applyFrameNumberToCanvas(frameIdx, canvas);
@@ -656,7 +657,6 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="favicon.png" alt="Gif Tools" width="32" height="32">&nbsp
-        My Gif Tools
       </a>
 
       <a class="navbar-item _has-text-weight-bold" href="#">
@@ -665,6 +665,10 @@
 
       <a class="navbar-item _has-text-weight-bold" href="diy">
         DIY Gif
+      </a>
+
+      <a class="navbar-item _has-text-weight-bold" href="overlay">
+        Overlay
       </a>
 
       <a class="navbar-item _has-text-weight-bold" href="https://github.com/kamikaz1k/gif-edit">
