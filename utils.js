@@ -1,4 +1,51 @@
 window.utils = {
+  debounce: (func, delay) => {
+    let lastTimeout = window.performance.now();
+    let queued = 0;
+    let consuming = false;
+
+    function queueConsumer() {
+      console.log('debounce worker state', { queued, delay, latency: window.performance.now() - lastTimeout });
+      lastTimeout = window.performance.now();
+      if (queued === 0) {
+        consuming = false;
+        return;
+      }
+
+      queued = 0;
+      setTimeout(queueConsumer, delay);
+      func(); // so the debounce doesn't get affected by the latency of the wrapped function
+    }
+
+    return () => {
+      if (consuming) {
+        queued++;
+        return;
+      }
+
+      consuming = true;
+      setTimeout(queueConsumer, delay);
+      func(); // so the debounce doesn't get affected by the latency of the wrapped function
+    }
+  },
+
+  timed: (func) => {
+    const start = window.performance.now();
+    let result = null;
+    let exception = null;
+    try {
+      result = func();
+    } catch (e) {
+      exception = e;
+    }
+
+    console.log(`### timed ${func.name}: ${window.performance.now() - start}`);
+
+    if (exception) throw exception;
+
+    return result;
+  },
+
   find: (selector) => document.querySelector(selector),
 
   findAll: (selector) => document.querySelectorAll(selector),

@@ -53,37 +53,33 @@
       utils.find('#canvas-height').value = canvas.height;
       utils.find('#canvas-width').value = canvas.width;
 
-      // window.sk = new SketchPad(canvas);
+      const debouncedRasterize = utils.debounce(rasterize, 1000 / 60);
 
       const sliderContainer = utils.find('#layer-controls');
       window.OverlayState.sliders.horizontalPoz = utils.addSlider({
         containerDiv: sliderContainer,
         sliderId: 'horizontalPoz',
         label: 'Left/Right',
-        onUpdate: x => updateLayerData({ x: x }) || rasterize()
+        onUpdate: x => updateLayerData({ x: x }) || debouncedRasterize()
       });
       window.OverlayState.sliders.verticalPoz = utils.addSlider({
         containerDiv: sliderContainer,
         sliderId: 'verticalPoz',
         label: 'Up/Down',
-        onUpdate: x => updateLayerData({ y: x }) || rasterize()
+        onUpdate: x => updateLayerData({ y: x }) || debouncedRasterize()
       });
       window.OverlayState.sliders.size = utils.addSlider({
         containerDiv: sliderContainer,
         sliderId: 'size',
         label: 'Size',
-        onUpdate: x => updateLayerData({ size: x }) || rasterize()
+        onUpdate: x => updateLayerData({ size: x }) || debouncedRasterize()
       });
       window.OverlayState.sliders.rotation = utils.addSlider({
         containerDiv: sliderContainer,
         sliderId: 'rotation',
         label: 'Rotation',
-        onUpdate: x => updateLayerData({ rotation: x }) || rasterize()
+        onUpdate: x => updateLayerData({ rotation: x }) || debouncedRasterize()
       });
-
-      // sk.onUpdate(() => updateCurrentLayer());
-
-      // selectLayerId(initNewLayer());
     });
 
     window.OverlayState = {
@@ -284,9 +280,7 @@
       });
 
       const ctx = canvas.getContext("2d");
-      const resizedCtx = resizedImage.getContext("2d");
-
-      ctx.putImageData(resizedCtx.getImageData(0, 0, resizedImage.width, resizedImage.height), 0, 0);
+      ctx.drawImage(resizedImage, 0, 0);
     }
 
     function resetCanvas(canvas) {
@@ -398,7 +392,7 @@
       </div>
     </div>
 
-    <div id="layer-controls" class="mt-2 container hidden"></div>
+    <div id="layer-controls" class="mt-2 container"></div>
   </section>
 
 </body>
