@@ -5,7 +5,7 @@ window.utils = {
     let consuming = false;
 
     function queueConsumer() {
-      console.log('debounce worker state', { queued, delay, latency: window.performance.now() - lastTimeout });
+      // console.log('debounce worker state', { queued, delay, latency: window.performance.now() - lastTimeout });
       lastTimeout = window.performance.now();
       if (queued === 0) {
         consuming = false;
